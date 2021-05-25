@@ -173,7 +173,8 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `mydb`.`Order_statuses` (
   `status_ID` INT NOT NULL AUTO_INCREMENT,
   `status_type` VARCHAR(55) NOT NULL,
-  PRIMARY KEY (`status_ID`))
+  PRIMARY KEY (`status_ID`),
+  UNIQUE INDEX `status_type_UNIQUE` (`status_type` ASC) VISIBLE)
 ENGINE = InnoDB;
 
 
