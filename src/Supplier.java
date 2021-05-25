@@ -14,4 +14,16 @@ public class Supplier
         this.email = email;
         this.website = website;
     }
+
+    @Override
+    public String toString()
+    {
+        return "Supplier{" +
+                "supplier_ID=" + supplier_ID +
+                ", name='" + name + '\'' +
+                ", phone='" + phone + '\'' +
+                ", email='" + email + '\'' +
+                ", website='" + website + '\'' +
+                '}';
+    }
 }

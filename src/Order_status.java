@@ -8,4 +8,13 @@ public class Order_status
         this.status_ID = status_ID;
         this.status_type = status_type;
     }
+
+    @Override
+    public String toString()
+    {
+        return "Order_status{" +
+                "status_ID=" + status_ID +
+                ", status_type='" + status_type + '\'' +
+                '}';
+    }
 }

@@ -16,4 +16,21 @@ public class Employee
         this.username = username;
         this.password = password;
     }
+
+    @Override
+    public String toString()
+    {
+        return "Employee{" +
+                "employee_ID=" + employee_ID +
+                ", name='" + name + '\'' +
+                ", last_name='" + last_name + '\'' +
+                ", phone='" + phone + '\'' +
+                ", address='" + address + '\'' +
+                ", city='" + city + '\'' +
+                ", state='" + state + '\'' +
+                ", ZIP='" + ZIP + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }

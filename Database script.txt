@@ -88,6 +88,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Warehouses` (
   `address` VARCHAR(45) NULL,
   `country` VARCHAR(45) NULL,
   `state` VARCHAR(45) NULL,
+  CHECK(free_capacity >= 0),
   PRIMARY KEY (`warehouse_ID`))
 ENGINE = InnoDB;
 
@@ -257,15 +258,14 @@ ENGINE = InnoDB;
 -- Table `mydb`.`Product_reviews`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mydb`.`Product_reviews` (
-  `review_ID` INT NOT NULL AUTO_INCREMENT,
   `grade` TINYINT UNSIGNED NOT NULL,
   `comment` VARCHAR(2500) NOT NULL,
   `product_ID` INT NOT NULL,
   `customer` INT NOT NULL,
-  PRIMARY KEY (`review_ID`),
-  INDEX `product_ID_idx2` (`product_ID` ASC) VISIBLE,
+  PRIMARY KEY (`product_ID`, `customer`),
+  INDEX `product_ID_idx` (`product_ID` ASC) VISIBLE,
   INDEX `customer_idx` (`customer` ASC) VISIBLE,
-  CONSTRAINT `product_ID2`
+  CONSTRAINT `product_ID`
     FOREIGN KEY (`product_ID`)
     REFERENCES `mydb`.`Products` (`product_ID`)
     ON DELETE NO ACTION

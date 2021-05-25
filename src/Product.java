@@ -35,4 +35,13 @@ public class Product
         this.thumbnail = thumbnail;
         this.warranty_months = warranty_months;
     }
+
+    @Override
+    public String toString()
+    {
+        return "Product{" +
+                "product_ID=" + product_ID +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

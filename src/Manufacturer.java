@@ -14,4 +14,12 @@ public class Manufacturer
         this.name = name;
     }
 
+    @Override
+    public String toString()
+    {
+        return "Manufacturer{" +
+                "manufacturer_ID=" + manufacturer_ID +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

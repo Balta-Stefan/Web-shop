@@ -1,5 +1,6 @@
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -25,7 +26,7 @@ public interface DAOInterface
 
     // inventory related
     List<Inventory> getInventory();
-    boolean addToInventory(Product product, int amount, LocalDate delivered_at, Warehouse warehouse, BigDecimal suppliers_price, Supplier supplier);
+    boolean addToInventory(Product product, int amount, LocalDateTime delivered_at, Warehouse warehouse, BigDecimal suppliers_price, Supplier supplier);
 
     // orders related
     boolean addOrder(Order order);
@@ -42,4 +43,7 @@ public interface DAOInterface
     // manufacturer related
     boolean addManufacturer(Manufacturer manufacturer);
     List<Manufacturer> getManufacturers();
+
+    // order statuses related
+    List<Order_status> getAllOrderStatusTypes();
 }

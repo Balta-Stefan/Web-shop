@@ -2,6 +2,11 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DAOtester
 {
@@ -13,28 +18,31 @@ public class DAOtester
             -add product categories - working
             -add category filters - working
             -add filter values - working
-            -add filter values to products
-            -get all products
-            -get filtered products
+            -add filter values to products - working
+            -get all products - working
+            -get filtered products - working
         2)Warehouse related
-            -get warehouses
+            -get warehouses - working
         3)Supplier related
-            -get all suppliers
+            -get all suppliers - working
         4)Inventory related
-            -get all of inventory
-            -add things to inventory
+            -get all of inventory - working
+            -add things to inventory - working
         5)Orders related
-            -add orders
-            -add returned reason
+            -add orders - working
+            -add returned reason - working
         6)Employees related
-            -get all employees
+            -get all employees - not implemented
+            -get an employee by username - working
         7)Customer related
-            -get a customer with email
-            -register a customer
-            -add a review to a product
+            -get a customer with email - working
+            -register a customer - working
+            -add a review to a product - working
         8)Manufacturer related
-            -add a manufacturer
-            -get all manufacturers
+            -add a manufacturer - working
+            -get all manufacturers - working
+        9)Order statuses related
+            -get all order status types - working
      */
     public static void main(String[] args)
     {
@@ -43,15 +51,10 @@ public class DAOtester
             Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/mydb", "root", "sigurnost");
             MySQL_DAO dao = new MySQL_DAO(connection);
 
-            //Product product1 = new Product(4, "banane cokoladne s vanilijom", 1, new BigDecimal("1.31"), 1, 1.0, "to su banane", null, (byte)0);
-            //Manufacturer manufacturer1 = new Manufacturer("Bananito");
-            //Product_category category1 = new Product_category("Voce");
-            //Category_filter category_filter1 = new Category_filter("Vrsta");
-            //Filter_value filter_value1 = new Filter_value("Kostunicavo");
-
-
             // System.out.println();
-            System.out.println(dao.addFilterToProduct(1, 1));
+            List<Order_status> lst = dao.getAllOrderStatusTypes();
+            for(Order_status o: lst)
+                System.out.println(o);
         }
         catch(SQLException e){System.out.println(e);}
 

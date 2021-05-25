@@ -1,6 +1,7 @@
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class MySQL_DAO implements DAOInterface
@@ -21,14 +22,15 @@ public class MySQL_DAO implements DAOInterface
     private static final String getInventory = "SELECT * FROM Inventory";
     private static final String addToInventory = "INSERT INTO Inventory(amount, price, delivered_at, available_amount, stored_at, suppliers_price, product_ID, supplier_ID) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String addOrder = "INSERT INTO Orders(inventory_ID, amount, order_received_at, order_delivered_at, returned_reason, status, handled_by, ordered_by) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String addReturnedReason = "ALTER TABLE Orders SET returned_reason=? WHERE order_ID=?";
+    private static final String addReturnedReason = "UPDATE Orders SET returned_reason=? WHERE order_ID=?";
     private static final String getEmployee = "SELECT * FROM Employees WHERE username=?";
     private static final String getCustomer = "SELECT * FROM Customers WHERE email=?";
     private static final String registerCustomer = "INSERT INTO Customers(name, last_name, email, password, phone, shipping_address, city, state, ZIP_code) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String addReview = "INSERT INTO Product_eviews(grade, comment, product_ID, customer) VALUES(?, ?, ?, ?)";
+    private static final String addReview = "INSERT INTO Product_reviews(grade, comment, product_ID, customer) VALUES(?, ?, ?, ?)";
     private static final String getAllProducts = "SELECT * FROM Products";
     private static final String addManufacturer = "INSERT INTO Manufacturers(name) VALUES(?)";
     private static final String getManufacturers = "SELECT * FROM Manufacturers";
+    private static final String getAllOrderStatusTypes = "SELECT * FROM Order_statuses";
 
     // prepared statements
     private final PreparedStatement addProductStatement;
@@ -50,6 +52,7 @@ public class MySQL_DAO implements DAOInterface
     private final PreparedStatement getAllProductsStatement;
     private final PreparedStatement addManufacturerStatement;
     private final PreparedStatement getManufacturersStatement;
+    private final PreparedStatement getAllOrderStatusTypesStatement;
 
 
     public MySQL_DAO(Connection connection) throws SQLException
@@ -75,6 +78,25 @@ public class MySQL_DAO implements DAOInterface
         getAllProductsStatement = connection.prepareStatement(getAllProducts);
         addManufacturerStatement = connection.prepareStatement(addManufacturer);
         getManufacturersStatement = connection.prepareStatement(getManufacturers);
+        getAllOrderStatusTypesStatement = connection.prepareStatement(getAllOrderStatusTypes);
+    }
+
+    public List<Order_status> getAllOrderStatusTypes()
+    {
+        try
+        {
+            List<Order_status> list = new ArrayList<>();
+            ResultSet results = getAllOrderStatusTypesStatement.executeQuery();
+
+            while(results.next())
+            {
+                Order_status temp = new Order_status(results.getInt("status_ID"), results.getString("status_type"));
+                list.add(temp);
+            }
+
+            return list;
+        }
+        catch(SQLException e){return null;}
     }
 
     public List<Manufacturer> getManufacturers()
@@ -222,14 +244,16 @@ public class MySQL_DAO implements DAOInterface
                 variableList.append("?,");
             variableList.append("?");
 
-            String query = "WITH temp(product_ID) AS (SELECT product_ID FROM product_filter_values WHERE product_ID IN(" + variableList.toString() + ")) SELECT product_ID, name, manufacturer, price, category, mass, description, thumbnail, warranty_months FROM (temp INNER JOIN products USING(product_ID));";
+            String query = "WITH temp(product_ID) AS (SELECT product_ID FROM product_filter_values WHERE filter_value_ID IN(" + variableList.toString() + ")) SELECT product_ID, name, manufacturer, price, category, mass, description, thumbnail, warranty_months FROM (temp INNER JOIN products USING(product_ID));";
 
             PreparedStatement statement = connection.prepareStatement(query);
+            for(int i = 0; i < list_value_IDs.size(); i++)
+                statement.setInt(i+1, list_value_IDs.get(i));
             ResultSet results = statement.executeQuery();
 
             while(results.next())
             {
-                Product temp = new Product(results.getInt("product_ID"), results.getString("name"), results.getInt("manufacturer_ID"), results.getBigDecimal("price"), results.getInt("category_ID"), results.getDouble("mass"), results.getString("description"), results.getString("thumbnail"), results.getByte("warranty_months"));
+                Product temp = new Product(results.getInt("product_ID"), results.getString("name"), results.getInt("manufacturer"), results.getBigDecimal("price"), results.getInt("category"), results.getDouble("mass"), results.getString("description"), results.getString("thumbnail"), results.getByte("warranty_months"));
                 foundProducts.add(temp);
             }
 
@@ -301,7 +325,7 @@ public class MySQL_DAO implements DAOInterface
                 Inventory temp = new Inventory(results.getInt("inventory_ID"),
                                                results.getInt("amount"),
                                                results.getBigDecimal("price"),
-                                               (LocalDate)results.getObject("delivered_at"),
+                                               results.getObject("delivered_at", LocalDateTime.class),
                                                results.getInt("available_amount"),
                                                results.getInt("stored_at"),
                                                results.getBigDecimal("suppliers_price"),
@@ -317,7 +341,7 @@ public class MySQL_DAO implements DAOInterface
     }
 
     @Override
-    public boolean addToInventory(Product product, int amount, LocalDate delivered_at, Warehouse warehouse, BigDecimal suppliers_price, Supplier supplier)
+    public boolean addToInventory(Product product, int amount, LocalDateTime delivered_at, Warehouse warehouse, BigDecimal suppliers_price, Supplier supplier)
     {
         try
         {// amount, price, delivered_at, available_amount, stored_at, suppliers_price, product_ID, supplier_ID
@@ -363,8 +387,8 @@ public class MySQL_DAO implements DAOInterface
     {
         try
         {
-            addReturnedReasonStatement.setInt(1, order.order_ID);
-            addReturnedReasonStatement.setString(2, order.returned_reason);
+            addReturnedReasonStatement.setString(1, order.returned_reason);
+            addReturnedReasonStatement.setInt(2, order.order_ID);
 
             addReturnedReasonStatement.executeUpdate();
         }
@@ -380,8 +404,8 @@ public class MySQL_DAO implements DAOInterface
         try
         {
             getEmployeeStatement.setString(1, username);
-
             ResultSet results = getEmployeeStatement.executeQuery();
+            results.next();
 
             found = new Employee(results.getInt("employee_ID"),
                     results.getString("name"),
@@ -407,6 +431,7 @@ public class MySQL_DAO implements DAOInterface
         {
             getCustomerStatement.setString(1, email);
             ResultSet result = getCustomerStatement.executeQuery();
+            result.next();
             found = new Customer(result.getInt("customer_ID"),
                     result.getString("name"),
                     result.getString("last_name"),
@@ -477,9 +502,9 @@ public class MySQL_DAO implements DAOInterface
             {
                 Product temp = new Product(results.getInt("product_ID"),
                         results.getString("name"),
-                        results.getInt("manufacturer_ID"),
+                        results.getInt("manufacturer"),
                         results.getBigDecimal("price"),
-                        results.getInt("category_ID"),
+                        results.getInt("category"),
                         results.getDouble("mass"),
                         results.getString("description"),
                         results.getString("thumbnail"),

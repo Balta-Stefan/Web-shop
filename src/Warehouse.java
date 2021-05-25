@@ -12,4 +12,17 @@ public class Warehouse
         this.country = country;
         this.state = state;
     }
+
+    @Override
+    public String toString()
+    {
+        return "Warehouse{" +
+                "warehouse_ID=" + warehouse_ID +
+                ", capacity=" + capacity +
+                ", free_capacity=" + free_capacity +
+                ", address='" + address + '\'' +
+                ", country='" + country + '\'' +
+                ", state='" + state + '\'' +
+                '}';
+    }
 }

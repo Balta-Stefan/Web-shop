@@ -12,4 +12,11 @@ public class Product_review
         this.grade = grade;
         this.comment = comment;
     }
+    public Product_review(byte grade, String comment, int product_ID, int customer_ID)
+    {
+        this.product_ID = product_ID;
+        this.customer_ID = customer_ID;
+        this.grade = grade;
+        this.comment = comment;
+    }
 }

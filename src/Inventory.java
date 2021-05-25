@@ -1,16 +1,16 @@
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Inventory
 {
     public int inventory_ID, amount;
     public BigDecimal price;
-    public LocalDate delivered_at;
+    public LocalDateTime delivered_at;
     public int available_amount, stored_at;
     public BigDecimal suppliers_price;
     public int product_ID, supplier_ID;
 
-    public Inventory(int inventory_ID, int amount, BigDecimal price, LocalDate delivered_at, int available_amount, int stored_at, BigDecimal suppliers_price, int product_ID, int supplier_ID)
+    public Inventory(int inventory_ID, int amount, BigDecimal price, LocalDateTime delivered_at, int available_amount, int stored_at, BigDecimal suppliers_price, int product_ID, int supplier_ID)
     {
         this.inventory_ID = inventory_ID;
         this.amount = amount;
@@ -21,5 +21,21 @@ public class Inventory
         this.suppliers_price = suppliers_price;
         this.product_ID = product_ID;
         this.supplier_ID = supplier_ID;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Inventory{" +
+                "inventory_ID=" + inventory_ID +
+                ", amount=" + amount +
+                ", price=" + price +
+                ", delivered_at=" + delivered_at +
+                ", available_amount=" + available_amount +
+                ", stored_at=" + stored_at +
+                ", suppliers_price=" + suppliers_price +
+                ", product_ID=" + product_ID +
+                ", supplier_ID=" + supplier_ID +
+                '}';
     }
 }
