@@ -31,8 +31,16 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `mydb`.`Product_categories` (
   `category_ID` INT NOT NULL AUTO_INCREMENT,
   `category_name` VARCHAR(45) NOT NULL,
+  `parent_category_ID` INT NULL DEFAULT NULL,
+  `number_of_subcategories` INT NULL DEFAULT 0,
   PRIMARY KEY (`category_ID`),
-  UNIQUE INDEX `category_name_UNIQUE` (`category_name` ASC) VISIBLE)
+  UNIQUE INDEX `category_name_UNIQUE` (`category_name` ASC) VISIBLE,
+  INDEX `parent_category_ID_idx` (`parent_category_ID` ASC) VISIBLE,
+  CONSTRAINT `parent_category_ID`
+    FOREIGN KEY (`parent_category_ID`)
+    REFERENCES `mydb`.`Product_categories` (`category_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
@@ -88,7 +96,6 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Warehouses` (
   `address` VARCHAR(45) NULL,
   `country` VARCHAR(45) NULL,
   `state` VARCHAR(45) NULL,
-  CHECK(free_capacity >= 0),
   PRIMARY KEY (`warehouse_ID`))
 ENGINE = InnoDB;
 
@@ -106,17 +113,16 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Inventory` (
   `suppliers_price` DECIMAL(10,4) NOT NULL,
   `product_ID` INT NOT NULL,
   `supplier_ID` INT NOT NULL,
-   CHECK(available_amount >= 0),
   PRIMARY KEY (`inventory_ID`),
   INDEX `stored_at_idx` (`stored_at` ASC) VISIBLE,
-  INDEX `product_ID_idx0` (`product_ID` ASC) VISIBLE,
+  INDEX `Inventory_product_ID_idx` (`product_ID` ASC) VISIBLE,
   INDEX `supplier_ID_idx` (`supplier_ID` ASC) VISIBLE,
   CONSTRAINT `stored_at`
     FOREIGN KEY (`stored_at`)
     REFERENCES `mydb`.`Warehouses` (`warehouse_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `product_ID4`
+  CONSTRAINT `FK_Inventory_product_ID`
     FOREIGN KEY (`product_ID`)
     REFERENCES `mydb`.`Products` (`product_ID`)
     ON DELETE NO ACTION
@@ -162,6 +168,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Customers` (
   `city` VARCHAR(45) NOT NULL,
   `state` VARCHAR(45) NOT NULL,
   `ZIP_code` VARCHAR(45) NOT NULL,
+  `shopping_cart` JSON NULL,
   PRIMARY KEY (`customer_ID`),
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
 ENGINE = InnoDB;
@@ -188,7 +195,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Orders` (
   `order_received_at` DATETIME NULL,
   `order_delivered_at` DATETIME NULL,
   `returned_reason` VARCHAR(2000) NULL,
-  `status` INT NULL,
+  `status` INT NOT NULL,
   `handled_by` INT NOT NULL,
   `ordered_by` INT NOT NULL,
   PRIMARY KEY (`order_ID`),
@@ -245,9 +252,9 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Product_pictures` (
   `product_ID` INT NOT NULL,
   `picture_URI` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`picture_ID`),
-  INDEX `product_ID_idx1` (`product_ID` ASC) VISIBLE,
+  INDEX `Product_pictures_product_ID_idx` (`product_ID` ASC) VISIBLE,
   UNIQUE INDEX `picture_URI_UNIQUE` (`picture_URI` ASC) VISIBLE,
-  CONSTRAINT `product_ID1`
+  CONSTRAINT `FK_Product_pictures_product_ID`
     FOREIGN KEY (`product_ID`)
     REFERENCES `mydb`.`Products` (`product_ID`)
     ON DELETE NO ACTION
@@ -264,9 +271,9 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Product_reviews` (
   `product_ID` INT NOT NULL,
   `customer` INT NOT NULL,
   PRIMARY KEY (`product_ID`, `customer`),
-  INDEX `product_ID_idx` (`product_ID` ASC) VISIBLE,
+  INDEX `Product_reviews_product_ID_idx` (`product_ID` ASC) VISIBLE,
   INDEX `customer_idx` (`customer` ASC) VISIBLE,
-  CONSTRAINT `product_ID`
+  CONSTRAINT `FK_Product_reviews_product_ID`
     FOREIGN KEY (`product_ID`)
     REFERENCES `mydb`.`Products` (`product_ID`)
     ON DELETE NO ACTION
@@ -307,7 +314,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Product_filter_values` (
   `filter_value_ID` INT NOT NULL,
   PRIMARY KEY (`product_ID`, `filter_value_ID`),
   INDEX `filter_value_ID_idx` (`filter_value_ID` ASC) VISIBLE,
-  CONSTRAINT `product_ID3`
+  CONSTRAINT `FK_Product_filter_values_product_ID`
     FOREIGN KEY (`product_ID`)
     REFERENCES `mydb`.`Products` (`product_ID`)
     ON DELETE NO ACTION
@@ -319,9 +326,58 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Product_filter_values` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+USE `mydb` ;
+
+
+DELIMITER $$
+CREATE PROCEDURE insert_category(in category_name VARCHAR(45), parent_category_ID INT)
+	BEGIN 
+		DECLARE newID INT;
+    
+		INSERT INTO mydb.Product_categories(category_name) VALUES(category_name);
+		SELECT category_ID INTO newID FROM mydb.Product_categories WHERE Product_categories.category_name = category_name;
+		
+		IF (newID = parent_category_ID) THEN
+			DELETE FROM mydb.Product_categories WHERE category_ID = newID;
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'You cannot set a category to be its own parent!';
+		END IF;
+		
+		IF (parent_category_ID IS NOT NULL) THEN
+			UPDATE mydb.Product_categories SET Product_categories.parent_category_ID=parent_category_ID WHERE mydb.Product_categories.category_ID = newID;
+			UPDATE mydb.Product_categories SET number_of_subcategories=number_of_subcategories+1 WHERE mydb.Product_categories.category_ID = parent_category_ID;
+		END IF;
+    END$$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE delete_category(in category_ID INT, parent_category_ID INT)
+	BEGIN 
+		IF (parent_category_ID IS NOT NULL) THEN
+			UPDATE mydb.Product_categories SET number_of_subcategories=number_of_subcategories-1 WHERE mydb.Product_categories.category_ID = parent_category_ID;
+		END IF;
+        DELETE FROM mydb.Product_categories WHERE Product_categories.category_ID=category_ID;
+    END$$
+DELIMITER ;
+
+
+
+-- -----------------------------------------------------
+-- Placeholder table for view `mydb`.`Employee_access_to_Employees`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`Employee_access_to_Employees` (`username` INT, `password` INT);
+
+-- -----------------------------------------------------
+-- View `mydb`.`Employee_access_to_Employees`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `mydb`.`Employee_access_to_Employees`;
+USE `mydb`;
+CREATE  OR REPLACE VIEW `Employee_access_to_Employees` AS
+SELECT username, password FROM Employees;
 USE `mydb`;
 
 DELIMITER $$
+
 USE `mydb`$$
 CREATE DEFINER = CURRENT_USER TRIGGER `mydb`.`Orders_BEFORE_INSERT` BEFORE INSERT ON `Orders` FOR EACH ROW
 BEGIN
@@ -335,8 +391,8 @@ BEGIN
     WHERE Filter_values.filter_value_ID=NEW.filter_value_ID;
 END$$
 
-
 DELIMITER ;
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
