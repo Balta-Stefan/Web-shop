@@ -15,16 +15,9 @@ body{
 	padding: 0;
 }
 
-
-
 /* The navigation bar */
 header {
-  /*overflow: hidden;*/
   background-color: #333;
-  /*position: fixed;  Set the navbar to fixed position */
-  /*top: 0;  Position the navbar at the top of the page */
-  
-  /*z-index: 1000;*/
   width: 100%; /* Full width */
   height: 3rem;
 }
@@ -63,14 +56,9 @@ h1#chosen_category_name{
 }
 
 .sidenav{
-  /*height: 100%;*/ /* Full-height: remove this if you want "auto" height */
   width: 17%; /* Set the width of the sidebar */
   height: 100%;
-  /*position: fixed;  Fixed Sidebar (stay in place on scroll) */
-  /*z-index: 1;  Stay on top */
-  /*left: 0;*/
   background-color: #111; /* Black */
-  /*overflow-x: hidden;  Disable horizontal scroll */
 }
 
 .sidenav a {
@@ -102,7 +90,6 @@ ul#lista img{
 }
 
 li#product_info_wrapper{
-	border: solid;
 	width: 13rem;
 }
 
@@ -113,5 +100,8 @@ div#product_info{
 
 li#product_info_wrapper p{
 	color: grey;
+}
+li#product_info_wrapper a, a:visited, a:hover, a:focus{
+	text-decoration: none;
 }
 
