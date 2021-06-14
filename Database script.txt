@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Product_categories` (
   CONSTRAINT `parent_category_ID`
     FOREIGN KEY (`parent_category_ID`)
     REFERENCES `mydb`.`Product_categories` (`category_ID`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
@@ -332,21 +332,19 @@ USE `mydb` ;
 DELIMITER $$
 CREATE PROCEDURE insert_category(in category_name VARCHAR(45), parent_category_ID INT)
 	BEGIN 
-		DECLARE newID INT;
+		-- the problem with this procedure is that it allows insertion of categories that are a subcategory of itself
     
-		INSERT INTO mydb.Product_categories(category_name) VALUES(category_name);
-		SELECT category_ID INTO newID FROM mydb.Product_categories WHERE Product_categories.category_name = category_name;
-		
-		IF (newID = parent_category_ID) THEN
-			DELETE FROM mydb.Product_categories WHERE category_ID = newID;
-			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'You cannot set a category to be its own parent!';
-		END IF;
-		
-		IF (parent_category_ID IS NOT NULL) THEN
-			UPDATE mydb.Product_categories SET Product_categories.parent_category_ID=parent_category_ID WHERE mydb.Product_categories.category_ID = newID;
-			UPDATE mydb.Product_categories SET number_of_subcategories=number_of_subcategories+1 WHERE mydb.Product_categories.category_ID = parent_category_ID;
-		END IF;
-    END$$
+        -- check if the parent doesn't exist
+        IF (parent_category_ID IS NOT NULL) THEN
+			IF (NOT EXISTS(SELECT * FROM mydb.Product_categories WHERE category_ID = parent_category_ID)) THEN
+				SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "Given parent doesn't exist!";
+            END IF;
+            INSERT INTO mydb.Product_categories(category_name, parent_category_ID) VALUES (category_name, parent_category_ID);
+            UPDATE mydb.Product_categories SET number_of_subcategories = number_of_subcategories + 1 WHERE category_ID = parent_category_ID;
+        ELSE
+			INSERT INTO mydb.Product_categories(category_name, parent_category_ID) VALUES (category_name, NULL);
+		END IF;  
+	END$$
 DELIMITER ;
 
 
@@ -354,7 +352,11 @@ DELIMITER $$
 CREATE PROCEDURE delete_category(in category_ID INT, parent_category_ID INT)
 	BEGIN 
 		IF (parent_category_ID IS NOT NULL) THEN
-			UPDATE mydb.Product_categories SET number_of_subcategories=number_of_subcategories-1 WHERE mydb.Product_categories.category_ID = parent_category_ID;
+			IF(NOT EXISTS(SELECT * FROM mydb.Product_categories WHERE mydb.Product_categories.category_ID = parent_category_ID)) THEN
+				SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "Given parent doesn't exist!";
+            ELSE
+				UPDATE mydb.Product_categories SET number_of_subcategories=number_of_subcategories-1 WHERE mydb.Product_categories.category_ID = parent_category_ID;
+			END IF;
 		END IF;
         DELETE FROM mydb.Product_categories WHERE Product_categories.category_ID=category_ID;
     END$$
