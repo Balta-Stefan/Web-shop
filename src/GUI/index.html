@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Stefan's web shop</title>
+		<link href="css/index.css" type="text/css" rel="stylesheet" />
+		<script type="text/javascript" src="js/index.js" defer></script>
+		<meta charset="UTF-8">
+		<meta name="author" content="Balta Stefan">
+		<meta name="viewport" content="width=device-width, initial-scale=1"> <!-- media queries don't work without this line-->
+	</head>
+	
+	<body>
+		<header>
+		  <a href="#home">Home</a>
+		  <a href="#news">News</a>
+		  <a href="#contact">Contact</a>
+		</header>
+		
+		<div id="sidenav_and_main_content_wrapper">
+			<div class="sidenav">
+				<a href="#">About</a>
+				<a href="#">Services</a>
+				<a href="#">Clients</a>
+				<a href="#">Contact</a>
+			</div>
+			
+			<div id="main_content">
+				<h1 id="chosen_category_name"><u>Naslov kategorije</u></h1>
+				<ul id="lista">
+					<!--<li><img src="Bananas.jpg"></li>
+					<li><img src="Bananas.jpg"></li>
+					<li><img src="Bananas.jpg"></li>
+					<li><img src="Bananas.jpg"></li>
+					<li><img src="Bananas.jpg"></li>
+					<li><img src="Bananas.jpg"></li> -->
+				</ul>
+				
+			</div>
+		</div>
+		
+		
+		<template id="product_wrapper_template">
+			<li id="product_info_wrapper">
+				<img src="Bananas.jpg">
+				<div id="product_info">
+					<p><b>Some big name smartphone</b></p>
+					<p><b>Product price</b></p>
+				</div>
+			</li>
+		</template>
+	</body>
+</html>
+
+
+
+

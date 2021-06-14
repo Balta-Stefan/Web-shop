@@ -1,0 +1,117 @@
+html{
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+
+body{
+	height: 100%;
+	width: 100%;
+	
+	font-size: 1.1 rem;
+	margin: 0;
+	padding: 0;
+}
+
+
+
+/* The navigation bar */
+header {
+  /*overflow: hidden;*/
+  background-color: #333;
+  /*position: fixed;  Set the navbar to fixed position */
+  /*top: 0;  Position the navbar at the top of the page */
+  
+  /*z-index: 1000;*/
+  width: 100%; /* Full width */
+  height: 3rem;
+}
+
+/* Links inside the navbar */
+header a {
+  float: left;
+  display: block;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+/* Change background on mouse-over */
+header a:hover {
+  background: #ddd;
+  color: black;
+}
+
+div#sidenav_and_main_content_wrapper{
+	width: 100%;
+	height: 95%;
+	display: flex;
+}
+
+div#main_content{
+	height: 100%;
+	width: 83%;
+	background-color: #284555;
+	overflow: auto;
+}
+
+h1#chosen_category_name{
+	margin-left: 15px;
+}
+
+.sidenav{
+  /*height: 100%;*/ /* Full-height: remove this if you want "auto" height */
+  width: 17%; /* Set the width of the sidebar */
+  height: 100%;
+  /*position: fixed;  Fixed Sidebar (stay in place on scroll) */
+  /*z-index: 1;  Stay on top */
+  /*left: 0;*/
+  background-color: #111; /* Black */
+  /*overflow-x: hidden;  Disable horizontal scroll */
+}
+
+.sidenav a {
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sidenav a:hover {
+  color: #f1f1f1;
+}
+
+ul#lista{
+	
+}
+
+ul#lista li{
+	padding: 5px 5px 5px 5px;
+	margin: 5px 5px 5px 5px;
+	display: inline-block;
+}
+ul#lista img{
+	width: 100%;
+	height: 150px;
+}
+
+li#product_info_wrapper{
+	border: solid;
+	width: 13rem;
+}
+
+div#product_info{
+	width: 100%;
+	height: 100%;
+}
+
+li#product_info_wrapper p{
+	color: grey;
+}
+
