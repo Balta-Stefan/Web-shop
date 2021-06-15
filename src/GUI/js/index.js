@@ -31,7 +31,7 @@ function selectCategory(categoryID)
 	alert("i am " + categoryID);
 }
 
-function sendFilters(filters)
+function sendFilters()
 {
 	var selectedFilters = getSelectedCheckboxes();
 	
@@ -39,6 +39,7 @@ function sendFilters(filters)
 	
 	
 }
+
 
 function addCategories(categories)
 {
@@ -66,6 +67,8 @@ function hide_or_display_category(categoryID)
 	else
 		element.style.display = "none";
 } 
+
+
 
 function addFilters(filters)
 {
@@ -109,8 +112,8 @@ function addFilters(filters)
 		for(var j = 0; j < valuesArray.length; j++)
 		{
 			// <input type="checkbox" value="some value">
-			var tempStr = '<div class="input-paragraph-row"><input type="checkbox" value="' + valuesArray[j].ID + '">';
-			tempStr += '<p>' + valuesArray[j].value + '</p></div>';
+			var tempStr = '<div class="input-paragraph-row"><input type="checkbox" value="' + valuesArray[j].ID + '" id="' + valuesArray[j].ID + '">';
+			tempStr += '<label for="' + valuesArray[j].ID + '">' + valuesArray[j].value + '</label></div>';
 			
 			filter_values_wrapper.innerHTML += tempStr;
 		}
@@ -119,6 +122,10 @@ function addFilters(filters)
 		let tmp = filter_values_wrapper.id; // without using "let", all categories will point to the last one due to scoping
 		link.addEventListener("click", function(){hide_or_display_category(tmp);}, false);
 	}
+	
+	// register the button to submit chosen filters
+	var filterButton = document.getElementById("send_filters_button");
+	filterButton.addEventListener("click", sendFilters);
 }
 
 function getSelectedCheckboxes()

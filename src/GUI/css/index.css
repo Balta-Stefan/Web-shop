@@ -112,7 +112,7 @@ div#category_button_wrapper{
 	flex-direction: column;
 	justify-content: flex-start;
 	width: 100%;
-	height: 100%;
+	/*height: auto;*/
 }
 
 .values_wrapper{
@@ -132,4 +132,16 @@ div#category_button_wrapper{
 .input-paragraph-row{
 	display: flex;
 	color: white;
+}
+
+button#send_filters_button{
+	margin-top: 25px;
+	background-color: #9d060d;
+	color: white;
+	border: none;
+	width: 100%;
+	height: 1.8rem;
+}
+button#send_filters_button:hover{
+	opacity: 0.6;
 }
