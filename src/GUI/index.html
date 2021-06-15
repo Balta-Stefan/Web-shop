@@ -17,11 +17,12 @@
 		</header>
 		
 		<div id="sidenav_and_main_content_wrapper">
-			<div class="sidenav">
+			<div id="sidenav">
 				<a href="#">About</a>
 				<a href="#">Services</a>
 				<a href="#">Clients</a>
 				<a href="#">Contact</a>
+				<a href="#">Druga cat</a>
 			</div>
 			
 			<div id="main_content">
@@ -37,7 +38,7 @@
 				
 			</div>
 		</div>
-		
+
 		
 		<template id="product_wrapper_template">
 			<a href="" id="product_image_link">
@@ -50,6 +51,22 @@
 				</li>
 			</a>
 		</template>
+		
+		<template id="filter_template">
+			<div id="category_button_wrapper">
+				<!-- Contains as many filter_row_template template instances as needed -->
+			</div>
+		</template>
+		
+		<template id="filter_row_template">
+			<div class="filter-row">
+				<a href="#" id="filter_link"></a>
+				<div style="display:none" id="filter_values" class="values_wrapper">
+					<!-- contains checkbox-paragraph pairs -->
+				</div>
+			</div>
+		</template>
+		
 	</body>
 </html>
 

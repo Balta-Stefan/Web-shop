@@ -55,13 +55,14 @@ h1#chosen_category_name{
 	margin-left: 15px;
 }
 
-.sidenav{
-  width: 17%; /* Set the width of the sidebar */
-  height: 100%;
-  background-color: #111; /* Black */
+div#sidenav{
+	width: 17%; /* Set the width of the sidebar */
+	height: 100%;
+	background-color: #111; /* Black */
+	overflow: auto;
 }
 
-.sidenav a {
+div#sidenav a {
   padding: 6px 8px 6px 16px;
   text-decoration: none;
   font-size: 25px;
@@ -71,7 +72,7 @@ h1#chosen_category_name{
   align-items: center;
 }
 
-.sidenav a:hover {
+div#sidenav a:hover {
   color: #f1f1f1;
 }
 
@@ -105,3 +106,30 @@ li#product_info_wrapper a, a:visited, a:hover, a:focus{
 	text-decoration: none;
 }
 
+
+div#category_button_wrapper{
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	width: 100%;
+	height: 100%;
+}
+
+.values_wrapper{
+	display: none;
+	flex-direction: column;
+	align-content: center;
+}
+
+.filter-row{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	width: 100%;
+	height: 100%:
+}
+
+.input-paragraph-row{
+	display: flex;
+	color: white;
+}
