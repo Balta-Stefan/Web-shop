@@ -4,6 +4,37 @@
 	These elements will be inserted as HTML code where buttons will contain onaction attribute.
 */
 
+const currencySymbol = "KM";
+const URLprefix = "webshop/v1/";
+const chosenCategoryHeader = document.getElementById("chosen_category_name");
+const JSON_headers = 
+{
+	"Content-Type": "application/json",
+	"Accept": "application/json"
+};
+
+var sidePanel = document.getElementById("sidenav");
+var product_list = document.getElementById("product_list");
+
+
+
+async function make_request(URL, method, headers, body_content)
+{
+	// body_content has to be a string
+	
+	// returns response as an object that has to be converted to JSON as await response.json();
+	// check response status with response.ok (a boolean value)
+	
+	var response = await fetch(URL,
+	{
+		method: method,
+		headers: headers,
+		body: body_content
+	});
+	
+	//const json_response = await response.json(); // converts JSON object to JSON string
+	return response;
+}
 
 
 function getTemplate(template_id)
@@ -24,22 +55,137 @@ function removeChildren(element)
 		element.firstChild.remove();
 }
 
-function selectCategory(categoryID)
+async function examineProduct(productID)
 {
-	// called when a category is clicked.The argument is the ID of the chosen category.
+	var URL = URLprefix + "products/" + productID;
+	var response = await make_request(URL, "GET", JSON_headers, null);
+	if(!response.ok)
+	{
+		alert("Error");
+		return;
+	}
 	
-	alert("i am " + categoryID);
+	// to do
+	
 }
 
-function sendFilters()
+function addProducts(products)
+{
+	/*
+		a product is of the form
+		{
+			ID: product_ID,
+			name: product_name,
+			thumbnail: picture_URL,
+			price: product_price_as_integer,
+		}
+		
+		-function argument is an array of products
+	*/
+	removeChildren(product_list);
+	var product_template = document.getElementById("product_wrapper_template");
+	
+	for(var i = 0; i < products.length; i++)
+	{
+		var template_clone = document.importNode(product_template.content, true);
+		product_list.appendChild(template_clone);
+		
+		// populate the template instance with info
+		var productLink = document.getElementById("product_image_link");
+		var productThumbnail = document.getElementById("product_thumbnail");
+		var productName = document.getElementById("product_name");
+		var productPrice = document.getElementById("product_price");
+		
+		let temp = products[i].ID;
+		productLink.addEventListener("click", async function()
+		{
+			examineProduct(temp);
+		});
+		
+		productThumbnail.src = products[i].thumbnail;
+		productName.innerHTML = products[i].name;
+		productPrice.innerHTML = products[i].price + currencySymbol;
+		
+		productLink.id = products[i].ID + "-link";
+		productThumbnail.id = products[i].ID + "-thumbnail";
+		productName.id = products[i].ID + "-name";
+		productPrice.id = products[i].ID + "-price";
+	}
+}
+
+async function sendFilters()
 {
 	var selectedFilters = getSelectedCheckboxes();
 	
 	// to do
 	
+	// response contains an array of products
 	
+	
+	var URL = URLprefix + "filter-product";
+	var body = [];
+	
+	// convert array of integers into array of JSON objects of the form {ID: filter_ID}
+	for(var i = 0; i < selectedFilters.length; i++)
+	{
+		var tempObject = {ID: selectedFilters[i]}
+		body.push(tempObject);
+	}
+	
+	var response = await make_request(URL, "GET", JSON_headers, JSON.stringify(body));
+	
+	if(!response.ok)
+	{
+		alert("Error");
+		return;
+	}
+	
+	var responseJSON = await response.json();
+	addProducts(responseJSON);
 }
 
+async function selectCategory(categoryID, categoryName)
+{
+	// called when a category is clicked.The argument is the ID of the chosen category.
+	
+	// send a request to obtain subcategories/filters of the chosen category
+	// response contains either subcategories or filters
+	/* response is of the format:
+		{
+			type: responseType // can be "categories" or "filters"
+			contents:
+			{
+				{
+					
+				},
+				{
+					...
+				}
+			}
+		}
+	*/
+	
+	var URL = URLprefix + "category/" + categoryID;
+	var response = await make_request(URL, "GET", JSON_headers, null);
+	if(!response.ok)
+	{
+		alert("Error");
+		return;
+	}
+	
+	var response_JSON = await response.json();
+	
+	if(response_JSON.type === "categories")
+		addCategories(response_JSON.contents);
+	else if(response_JSON.type === "filters")
+	{
+		// change chosen category header
+		chosenCategoryHeader.innerHTML = categoryName;
+		addFilters(response_JSON.contents);
+	}
+	else
+		alert("Error");
+}
 
 function addCategories(categories)
 {
@@ -52,14 +198,13 @@ function addCategories(categories)
 	// add the new categories
 	for(var i = 0; i < categories.length; i++)
 	{
-		var tempStr = '<a href="#" onclick="selectCategory(' + categories[i].ID +  ')">' + categories[i].name + '</a>';
+		var tempStr = '<a href="#" onclick="selectCategory(' + categories[i].ID +  ', ' + categories[i].name + ')">' + categories[i].name + '</a>';
 		sidePanel.innerHTML += tempStr;
 	}
 }
 
 function hide_or_display_category(categoryID)
 {
-	console.log(categoryID);
 	var element = document.getElementById(categoryID);
 	
 	if (element.style.display === "none")
@@ -118,7 +263,6 @@ function addFilters(filters)
 			filter_values_wrapper.innerHTML += tempStr;
 		}
 		filter_values_wrapper.id = filters[i].name + "-values";
-		console.log(filter_values_wrapper.id);
 		let tmp = filter_values_wrapper.id; // without using "let", all categories will point to the last one due to scoping
 		link.addEventListener("click", function(){hide_or_display_category(tmp);}, false);
 	}
@@ -140,12 +284,10 @@ function getSelectedCheckboxes()
 }
 
 
-var sidePanel = document.getElementById("sidenav");
-var list = document.getElementById("lista");
 
 for(var i = 0; i < 20; i++)
 {
-	activate_template(list, "product_wrapper_template");
+	activate_template(product_list, "product_wrapper_template");
 }
 
 var obj1 = 
@@ -206,5 +348,6 @@ var obj3 =
 
 var array = [obj1, obj2, obj3];
 addFilters(array);
+
 
 
