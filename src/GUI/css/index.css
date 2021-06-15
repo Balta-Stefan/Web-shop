@@ -136,6 +136,7 @@ div#category_button_wrapper{
 	color: white;
 }
 
+
 button#send_filters_button{
 	margin-top: 25px;
 	background-color: #9d060d;
@@ -146,4 +147,18 @@ button#send_filters_button{
 }
 button#send_filters_button:hover{
 	opacity: 0.6;
+}
+
+.product_image_link{
+	display: inline-block;
+	/*border: solid;
+	color: red;*/
+}
+
+.product_image_link:hover{
+	box-shadow: 0 4px 8px 0 white, 0 6px 20px 0 white;
+	/*
+		rgba(0, 0, 0, 0.2)
+		rgba(0, 0, 0, 0.19)
+	*/
 }

@@ -55,6 +55,7 @@ function removeChildren(element)
 		element.firstChild.remove();
 }
 
+// not tested
 async function examineProduct(productID)
 {
 	var URL = URLprefix + "products/" + productID;
@@ -68,7 +69,7 @@ async function examineProduct(productID)
 	// to do
 	
 }
-
+// not tested
 function addProducts(products)
 {
 	/*
@@ -113,6 +114,7 @@ function addProducts(products)
 	}
 }
 
+// not tested
 async function sendFilters()
 {
 	var selectedFilters = getSelectedCheckboxes();
@@ -152,16 +154,8 @@ async function selectCategory(categoryID, categoryName)
 	// response contains either subcategories or filters
 	/* response is of the format:
 		{
-			type: responseType // can be "categories" or "filters"
-			contents:
-			{
-				{
-					
-				},
-				{
-					...
-				}
-			}
+			type: responseType, // can be "categories" or "filters"
+			contents: {...}
 		}
 	*/
 	
@@ -175,14 +169,12 @@ async function selectCategory(categoryID, categoryName)
 	
 	var response_JSON = await response.json();
 	
+	chosenCategoryHeader.innerHTML = categoryName;
+	
 	if(response_JSON.type === "categories")
 		addCategories(response_JSON.contents);
 	else if(response_JSON.type === "filters")
-	{
-		// change chosen category header
-		chosenCategoryHeader.innerHTML = categoryName;
 		addFilters(response_JSON.contents);
-	}
 	else
 		alert("Error");
 }
