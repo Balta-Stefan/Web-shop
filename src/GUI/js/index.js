@@ -395,52 +395,18 @@ async function get_shopping_cart_items()
 		}
 	*/
 	
-	/*var URL =  URLprefix + "customers/shopping-cart";
+	var URL =  URLprefix + "customers/shopping-cart";
 	var response = await make_request(URL, "GET", JSON_headers, null);
 	if(!response.ok)
 		return null;
 	
-	return await response.json();*/
-	
-	var temp1 = 
-	{
-		ID: 1,
-		name: "Banana1",
-		thumbnail: "Bananas.jpg",
-		price: 25
-	}
-	var temp2 = 
-	{
-		ID: 2,
-		name: "Banana2",
-		thumbnail: "Bananas.jpg",
-		price: 25
-	}
-	var temp3 = 
-	{
-		ID: 3,
-		name: "Banana3",
-		thumbnail: "Bananas.jpg",
-		price: 25
-	}
-	var temp4 = 
-	{
-		ID: 4,
-		name: "Banana4",
-		thumbnail: "Bananas.jpg",
-		price: 25
-	}	
-
-	
-	
-	var arr = [temp1, temp2, temp3, temp4];
-	return arr;
+	return await response.json();
 }
 
 // not tested
 async function remove_item_from_shopping_cart(product_ID)
 {
-	var URL =  URLprefix + "customers/shopping-cart";
+	/*var URL =  URLprefix + "customers/shopping-cart";
 	var tempObj = {product_ID};
 	var response = await make_request(URL, "DELETE", JSON_headers, JSON.stringify(tempObj));
 	
@@ -448,7 +414,7 @@ async function remove_item_from_shopping_cart(product_ID)
 	{
 		alert("Error");
 		return;
-	}
+	}*/
 	
 	// remove the element from the list
 	var item_wrapper = document.getElementById(product_ID);
@@ -486,9 +452,10 @@ async function activate_shopping_cart_panel()
 		item_thumbnail.src = shopping_cart_items[i].thumbnail;
 		item_name.innerHTML += shopping_cart_items[i].name;
 		item_price.innerHTML += shopping_cart_items[i].price + currencySymbol;
+		let tmp = shopping_cart_items[i].ID;
 		item_remove_button.addEventListener("click", function()
 		{
-			remove_item_from_shopping_cart(shopping_cart_items[i].ID);
+			remove_item_from_shopping_cart(tmp);
 		});
 		
 		item_thumbnail.id = shopping_cart_items[i].ID + "-thumbnail";
@@ -563,5 +530,3 @@ var obj3 =
 var array = [obj1, obj2, obj3];
 addFilters(array);
 
-other_content_panel.style.display = "block";
-activate_shopping_cart_panel();
