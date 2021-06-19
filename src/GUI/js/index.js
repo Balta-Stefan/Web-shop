@@ -342,6 +342,7 @@ function activate_registration_panel()
 // not tested
 function activate_login_panel()
 {
+	removeChildren(other_content_panel);
 	activate_template(other_content_panel, "login_and_register_template");
 	other_content_panel.style.display = "block";
 	
@@ -406,7 +407,7 @@ async function get_shopping_cart_items()
 // not tested
 async function remove_item_from_shopping_cart(product_ID)
 {
-	/*var URL =  URLprefix + "customers/shopping-cart";
+	var URL =  URLprefix + "customers/shopping-cart";
 	var tempObj = {product_ID};
 	var response = await make_request(URL, "DELETE", JSON_headers, JSON.stringify(tempObj));
 	
@@ -414,7 +415,7 @@ async function remove_item_from_shopping_cart(product_ID)
 	{
 		alert("Error");
 		return;
-	}*/
+	}
 	
 	// remove the element from the list
 	var item_wrapper = document.getElementById(product_ID);
@@ -471,7 +472,7 @@ async function activate_shopping_cart_panel()
 	activate_template(product_list, "product_wrapper_template");
 }*/
 
-var obj1 = 
+/*var obj1 = 
 {
 	name: "First filter",
 	values:
@@ -528,5 +529,5 @@ var obj3 =
 
 
 var array = [obj1, obj2, obj3];
-addFilters(array);
+addFilters(array);*/
 
