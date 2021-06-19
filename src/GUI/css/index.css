@@ -229,3 +229,37 @@ div#articles_in_cart_holder{
 	flex-direction: column;
 	width: 100%;
 }
+
+.shopping_cart_product_thumbnail{
+	height: 150px;
+	width: 150px;
+}
+
+.shopping_cart_item{
+	border: solid;
+	display: flex;
+	justify-content: space-between;
+}
+.remove_item_from_shopping_cart_button{
+	background-color: red;
+	border: none;
+}
+.remove_item_from_shopping_cart_button:hover{
+	opacity: 0.5;
+}
+
+button#buy_shopping_cart{
+	border: none;
+	background-color: blue;
+	width: 15rem;
+	height: 3rem;
+	
+	margin-top: 25px;
+	margin-left: 25px;
+	margin-bottom: 25px;
+}
+button#buy_shopping_cart:hover{
+	opacity: 0.5;
+}
+
+/* End of shopping cart */
