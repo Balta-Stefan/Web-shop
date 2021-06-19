@@ -15,8 +15,14 @@ const JSON_headers =
 
 var sidePanel = document.getElementById("sidenav");
 var product_list = document.getElementById("product_list");
+var login_button = document.getElementById("login_button");
+var shopping_cart_button = document.getElementById("shopping_cart_button");
+var articles_panel = document.getElementById("products_list");
+var other_content_panel = document.getElementById("other_content");
 
 
+shopping_cart_button.addEventListener("click", activate_shopping_cart_panel);
+login_button.addEventListener("click", activate_login_panel);
 
 async function make_request(URL, method, headers, body_content)
 {
@@ -34,6 +40,15 @@ async function make_request(URL, method, headers, body_content)
 	
 	//const json_response = await response.json(); // converts JSON object to JSON string
 	return response;
+}
+
+function FormData_to_JSON(formData_object)
+{
+	// returns a string
+	
+	const plainFormData = Object.fromEntries(formData_object.entries());
+	const formDataJSON = JSON.stringify(plainFormData);
+	return formDataJSON;
 }
 
 
@@ -181,6 +196,8 @@ async function selectCategory(categoryID, categoryName)
 
 function addCategories(categories)
 {
+	if(categories == null)
+		return;
 	// adds new categories into the side panel.The argument is a JSON array.
 	// format of a JSON object in the array: {ID: categoryID, name: categoryName}
 	
@@ -275,12 +292,183 @@ function getSelectedCheckboxes()
 	return array;
 }
 
+// not tested
+async function get_main_categories()
+{
+	var URL =  URLprefix + "categories";
+	var response = await make_request(URL, "GET", JSON_headers, formData_JSON);
+	
+	if(!response.ok)
+		return null;
+	
+	return await response.json();
+}
 
+// not tested
+function activate_registration_panel()
+{
+	removeChildren(other_content_panel);
+	
+	activate_template(other_content_panel, "register_panel");
+	
+	const registerForm = document.getElementById("register_form");
+	registerForm.addEventListener("submit", async function(event)
+	{
+		event.preventDefault();
+		
+		var formData = new FormData(this);
+		var formData_JSON = FormData_to_JSON(formData);
+		
+		var tmp = JSON.parse(formData_JSON);
+		if(tmp.password != tmp.password_confirm)
+		{
+			alert("Passwords don't match!");
+			return;
+		}
+		
+		//make_request(URL, method, headers, body_content)
+		var URL = URLprefix + "customers";
+		var response = await make_request(URL, "POST", JSON_headers, formData_JSON);
+		
+		if(!response.ok)
+		{
+			alert("Registration unsuccessful");
+			return;
+		}
+		alert("Registration successful");
+	});
+}
 
-for(var i = 0; i < 20; i++)
+// not tested
+function activate_login_panel()
+{
+	activate_template(other_content_panel, "login_and_register_template");
+	other_content_panel.style.display = "block";
+	
+	var login_form = document.getElementById("login_form");
+	login_form.addEventListener("submit", async function(event)
+	{
+		event.preventDefault();
+		
+		var formData = new FormData(this);
+		var formData_JSON = FormData_to_JSON(formData);
+		
+		var URL =  URLprefix + "customers/login";
+		var response = await make_request(URL, "POST", JSON_headers, formData_JSON);
+		
+		if(!response.ok)
+		{
+			alert("Error");
+			return;
+		}
+		
+		// login successful
+		other_content_panel.style.display = "none";
+		articles_panel.style.display = "block"; // this might be incorrect, try flex if block doesn't work
+		var main_categories = get_main_categories();
+		if(main_categories == null)
+		{
+			alert("Error");
+			return;
+		}
+		addCategories(main_categories);
+		
+		login_button.style.display = "none";
+		shopping_cart_button.style.display = "block";
+	});
+
+	var register_button = document.getElementById("register_button");
+	register_button.addEventListener("click", activate_registration_panel);
+}
+
+// not tested
+async function get_shopping_cart_items()
+{
+	// returns a JSON array of shopping cart items
+	/*
+		format of an item in the shopping cart is:
+		{
+			ID: someID,
+			name: productName,
+			thumbnail: someURL,
+			price: integerPrice
+		}
+	*/
+	
+	var URL =  URLprefix + "customers/shopping-cart";
+	var response = await make_request(URL, "GET", JSON_headers, null);
+	if(!response.ok)
+		return null;
+	
+	return await response.json();
+}
+
+// not tested
+async function remove_item_from_shopping_cart(product_ID)
+{
+	var URL =  URLprefix + "customers/shopping-cart";
+	var tempObj = {product_ID};
+	var response = await make_request(URL, "DELETE", JSON_headers, JSON.stringify(tempObj));
+	
+	if(!response.ok)
+	{
+		alert("Error");
+		return;
+	}
+	
+	// remove the element from the list
+	var item_wrapper = document.getElementById(product_ID);
+	item_wrapper.remove();
+}
+
+// not tested
+async function activate_shopping_cart_panel()
+{
+	removeChildren(other_content_panel);
+	activate_template(other_content_panel, "shopping_cart_panel");
+	
+	var shopping_cart_items = await get_shopping_cart_items();
+	if(shopping_cart_items == null)
+	{
+		alert("Error");
+		return;
+	}
+	
+	// populate the shopping cart panel
+	var articles_holder = document.getElementById("articles_in_cart_holder");
+	var shopping_cart_item_template = document.getElementById("shopping_cart_item_template");
+	
+	for(var i = 0; i < shopping_cart_items.length; i++)
+	{
+		var clone = document.importNode(shopping_cart_item_template.content, true);
+		articles_holder.appendChild(clone);
+		
+		var item_thumbnail = document.getElementById("cart_item_thumbnail");
+		var item_name = document.getElementById("cart_item_name");
+		var item_price = document.getElementById("cart_item_price");
+		var item_remove_button = document.getElementById("cart_item_remove_button");
+		var cart_item_wrapper = document.getElementById("cart_item_wrapper");
+		
+		item_thumbnail.src = shopping_cart_items[i].thumbnail;
+		item_name.innerHTML += shopping_cart_items[i].name;
+		item_price.innerHTML += shopping_cart_items[i].price + currencySymbol;
+		item_remove_button.addEventListener("click", function()
+		{
+			remove_item_from_shopping_cart(shopping_cart_items[i].ID);
+		});
+		
+		item_thumbnail.id = shopping_cart_items[i].ID + "-thumbnail";
+		item_name.id = shopping_cart_items[i].ID + "-name";
+		item_price.id = shopping_cart_items[i].ID + "-price";
+		item_remove_button.id = shopping_cart_items[i].ID + "-remove-button";
+		cart_item_wrapper.id = shopping_cart_items[i].ID;
+	}
+}
+
+/*for(var i = 0; i < 20; i++)
 {
 	activate_template(product_list, "product_wrapper_template");
-}
+}*/
 
 var obj1 = 
 {
@@ -340,6 +528,5 @@ var obj3 =
 
 var array = [obj1, obj2, obj3];
 addFilters(array);
-
 
 
