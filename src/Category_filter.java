@@ -1,3 +1,5 @@
+package webStore;
+
 public class Category_filter
 {
     public int filter_ID, category_ID;

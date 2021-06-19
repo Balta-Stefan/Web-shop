@@ -1,3 +1,5 @@
+package webStore;
+
 public class Supplier
 {
     public int supplier_ID;

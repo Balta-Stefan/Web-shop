@@ -1,3 +1,5 @@
+package webStore;
+
 public class Product_filter_values
 {
     public int product_ID, filter_value_ID;

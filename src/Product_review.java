@@ -1,3 +1,5 @@
+package webStore;
+
 public class Product_review
 {
     public int review_ID, product_ID, customer_ID;

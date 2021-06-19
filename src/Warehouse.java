@@ -1,3 +1,5 @@
+package webStore;
+
 public class Warehouse
 {
     public int warehouse_ID, capacity, free_capacity;

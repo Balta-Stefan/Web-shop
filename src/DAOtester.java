@@ -1,3 +1,5 @@
+package webStore;
+
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -51,10 +53,10 @@ public class DAOtester
             Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/mydb", "root", "sigurnost");
             MySQL_DAO dao = new MySQL_DAO(connection);
 
-            // System.out.println();
-            List<Order_status> lst = dao.getAllOrderStatusTypes();
-            for(Order_status o: lst)
-                System.out.println(o);
+            // (int category_ID, String category_name, Integer parent_category_ID, int number_of_subcategories)
+            // String category_name, Integer parent_category_ID
+            Product_category category = new Product_category(9, "dijete 1", 912, 0);
+            System.out.println(dao.deleteProductCategory(category));
         }
         catch(SQLException e){System.out.println(e);}
 

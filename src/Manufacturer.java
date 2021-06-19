@@ -1,3 +1,5 @@
+package webStore;
+
 public class Manufacturer
 {
     public int manufacturer_ID;

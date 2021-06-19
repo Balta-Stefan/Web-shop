@@ -1,3 +1,5 @@
+package webStore;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,7 +13,8 @@ public interface DAOInterface
     // product related methods
     boolean addProduct(Product product);
     boolean addProductPictures(Product product, String[] picturePaths);
-    boolean addProductCategory(String category_name);
+    boolean addProductCategory(Product_category category);
+    boolean deleteProductCategory(Product_category category);
     boolean addCategoryFilters(int filter_ID, String filter);
     boolean addFilterValues(int filter_ID, String filter_value);
     boolean addFilterToProduct(int filter_value_ID, int product_ID);

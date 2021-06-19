@@ -1,3 +1,5 @@
+package webStore;
+
 import java.math.BigDecimal;
 
 public class Product

@@ -1,3 +1,5 @@
+package webStore;
+
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
@@ -13,7 +15,7 @@ public class MySQL_DAO implements DAOInterface
     // SQL query constants
     private static final String addProductQuery = "INSERT INTO Products(name, manufacturer, price, category, mass, description, thumbnail, warranty_months) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String addProductPicture = "INSERT INTO Product_pictures(product_ID, picture_URI) VALUES(?, ?)";
-    private static final String addProductCategory = "INSERT INTO Product_categories(category_name) VALUES(?)";
+    //private static final String addProductCategory = "INSERT INTO Product_categories(category_name) VALUES(?)";
     private static final String addCategoryFilter = "INSERT INTO Category_filters(category_ID, filter) VALUES(?, ?)";
     private static final String addFilterValues = "INSERT INTO Filter_values(filter_ID, value) VALUES(?, ?)";
     private static final String addFilterToProduct = "INSERT INTO Product_filter_values(product_ID, filter_value_ID) VALUES(?, ?)";
@@ -31,11 +33,13 @@ public class MySQL_DAO implements DAOInterface
     private static final String addManufacturer = "INSERT INTO Manufacturers(name) VALUES(?)";
     private static final String getManufacturers = "SELECT * FROM Manufacturers";
     private static final String getAllOrderStatusTypes = "SELECT * FROM Order_statuses";
+    private static final String insert_category_call = "CALL insert_category(?, ?)";
+    private static final String delete_category_call = "CALL delete_category(?, ?)";
 
     // prepared statements
     private final PreparedStatement addProductStatement;
     private final PreparedStatement addProductPictureStatement;
-    private final PreparedStatement addProductCategoryStatement;
+    //private final PreparedStatement addProductCategoryStatement;
     private final PreparedStatement addCategoryFilterStatement;
     private final PreparedStatement addFilterValuesStatement;
     private final PreparedStatement addFilterToProductStatement;
@@ -53,7 +57,9 @@ public class MySQL_DAO implements DAOInterface
     private final PreparedStatement addManufacturerStatement;
     private final PreparedStatement getManufacturersStatement;
     private final PreparedStatement getAllOrderStatusTypesStatement;
-
+    
+    private final CallableStatement insert_category_statement;
+    private final CallableStatement delete_category_statement;
 
     public MySQL_DAO(Connection connection) throws SQLException
     {
@@ -61,7 +67,7 @@ public class MySQL_DAO implements DAOInterface
 
         addProductStatement = connection.prepareStatement(addProductQuery);
         addProductPictureStatement = connection.prepareStatement(addProductPicture);
-        addProductCategoryStatement = connection.prepareStatement(addProductCategory);
+        //addProductCategoryStatement = connection.prepareStatement(addProductCategory);
         addCategoryFilterStatement = connection.prepareStatement(addCategoryFilter);
         addFilterValuesStatement = connection.prepareStatement(addFilterValues);
         addFilterToProductStatement = connection.prepareStatement(addFilterToProduct);
@@ -79,6 +85,9 @@ public class MySQL_DAO implements DAOInterface
         addManufacturerStatement = connection.prepareStatement(addManufacturer);
         getManufacturersStatement = connection.prepareStatement(getManufacturers);
         getAllOrderStatusTypesStatement = connection.prepareStatement(getAllOrderStatusTypes);
+        
+        insert_category_statement = connection.prepareCall(insert_category_call);
+        delete_category_statement = connection.prepareCall(delete_category_call);
     }
 
     public List<Order_status> getAllOrderStatusTypes()
@@ -170,14 +179,36 @@ public class MySQL_DAO implements DAOInterface
 
         return true;
     }
+    
+    @Override
+    public boolean deleteProductCategory(Product_category category)
+    {
+    	try
+    	{
+    		delete_category_statement.setInt(1, category.category_ID);
+    		if(category.parent_category_ID == null)
+    			delete_category_statement.setNull(2, java.sql.Types.INTEGER);
+        	else 
+        		delete_category_statement.setInt(2, category.parent_category_ID);
+    		
+    		delete_category_statement.executeUpdate();
+    	}
+    	catch(SQLException e) {return false;}
+    	
+    	return true;
+    }
 
     @Override
-    public boolean addProductCategory(String category_name)
+    public boolean addProductCategory(Product_category category)
     {
         try
         {
-            addProductCategoryStatement.setString(1, category_name);
-            addProductCategoryStatement.executeUpdate();
+            insert_category_statement.setString(1, category.category_name);
+        	if(category.parent_category_ID == null)
+        		insert_category_statement.setNull(2, java.sql.Types.INTEGER);
+        	else 
+        		insert_category_statement.setInt(2, category.parent_category_ID);
+        	insert_category_statement.executeUpdate();
         }
         catch(SQLException e){return false;}
 
@@ -441,7 +472,8 @@ public class MySQL_DAO implements DAOInterface
                     result.getString("shipping_address"),
                     result.getString("city"),
                     result.getString("state"),
-                    result.getString("ZIP_code"));
+                    result.getString("ZIP_code"),
+                    result.getString("shopping_cart"));
         }
         catch(SQLException e){return null;}
 

@@ -1,3 +1,5 @@
+package webStore;
+
 public class Product_picture
 {
     public int picture_ID, product_ID;
