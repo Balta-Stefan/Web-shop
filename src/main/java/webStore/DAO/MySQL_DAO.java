@@ -2,7 +2,6 @@ package webStore.DAO;
 
 import java.math.BigDecimal;
 import java.sql.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -53,6 +52,8 @@ public class MySQL_DAO implements DAOInterface
     private static final String get_category = "SELECT * FROM Product_categories WHERE category_ID=?";
     private static final String get_subcategories = "SELECT category_ID, category_name FROM Product_categories WHERE parent_category_ID = ?";
     private static final String get_filters = "select T.filter, T.filter_ID, T.filter_value_ID, T.value from (select * from (product_categories join category_filters using(category_ID) join filter_values using(filter_ID)) ) AS T where T.category_ID=?";
+    private static final String get_product = "SELECT * FROM Products WHERE product_ID = ?";
+    private static final String get_manufacturer = "SELECT * FROM Manufacturers WHERE manufacturer_ID = ?";
     
     // prepared statements
     private final PreparedStatement addProductStatement;
@@ -79,6 +80,8 @@ public class MySQL_DAO implements DAOInterface
     private final PreparedStatement getCategoryStatement;
     private final PreparedStatement getSubcategoriesStatement;
     private final PreparedStatement getFiltersStatement;
+    private final PreparedStatement getProductStatement;
+    private final PreparedStatement getManufacturerStatement;
     
     private final CallableStatement insert_category_statement;
     private final CallableStatement delete_category_statement;
@@ -111,9 +114,51 @@ public class MySQL_DAO implements DAOInterface
         getCategoryStatement = connection.prepareStatement(get_category);
         getSubcategoriesStatement = connection.prepareStatement(get_subcategories);
         getFiltersStatement = connection.prepareStatement(get_filters);
+        getProductStatement = connection.prepareStatement(get_product);
+        getManufacturerStatement = connection.prepareStatement(get_manufacturer);
         
         insert_category_statement = connection.prepareCall(insert_category_call);
         delete_category_statement = connection.prepareCall(delete_category_call);
+    }
+    
+    public Manufacturer getManufacturer(int manufacturerID)
+    {
+    	try
+    	{
+    		getManufacturerStatement.setInt(1, manufacturerID);
+    		ResultSet result = getManufacturerStatement.executeQuery();
+    		
+    		if(result.next() == false)
+    			return null;
+    		return new Manufacturer(result.getInt("manufacturer_ID"), result.getString("name"));
+    	}
+    	catch(SQLException e) {return null;}
+    }
+    
+    public Product getProduct(int productID)
+    {
+    	try
+    	{
+    		getProductStatement.setInt(1, productID);
+    		ResultSet results = getProductStatement.executeQuery();
+    		
+    		if(results.next() == false)
+    			return null;
+    		
+    		Manufacturer manufacturer = getManufacturer(results.getInt("manufacturer"));
+    		
+    		return new Product(results.getInt("product_ID"), 
+    				           results.getString("name"),
+    				           results.getInt("manufacturer"), 
+    				           results.getBigDecimal("price"),
+    				           results.getInt("category"),
+    				           results.getDouble("mass"),
+    				           results.getString("description"),
+    				           results.getString("thumbnail"),
+    				           results.getByte("warranty_months"),
+    				           manufacturer.name);
+    	}
+    	catch(SQLException e) {return null;}
     }
 
     public Product_category getCategory(int categoryID)

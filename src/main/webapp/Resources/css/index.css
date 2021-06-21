@@ -153,13 +153,13 @@ button#send_filters_button:hover{
 	opacity: 0.6;
 }
 
-.product_image_link{
+.product_link_class{
 	display: inline-block; /* this makes sure the div doesn't get bigger than its contents */
 	/*border: solid;
 	color: red;*/
 }
 
-.product_image_link:hover{
+.product_link_class:hover{
 	box-shadow: 0 4px 8px 0 white, 0 6px 20px 0 white;
 	/*
 		rgba(0, 0, 0, 0.2)

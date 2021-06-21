@@ -1,9 +1,7 @@
 package webStore.DAO;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 import webStore.model.Customer;
@@ -38,6 +36,7 @@ public interface DAOInterface
     List<ID_string_pair> get_subcategories(int parentID);
     FilterValuesOfCategory get_filters(int categoryID);
     Product_category getCategory(int categoryID);
+    Product getProduct(int productID);
 
     // warehouse related
     List<Warehouse> getWarehouses();
@@ -64,6 +63,7 @@ public interface DAOInterface
     // manufacturer related
     boolean addManufacturer(Manufacturer manufacturer);
     List<Manufacturer> getManufacturers();
+    Manufacturer getManufacturer(int manufacturerID);
 
     // order statuses related
     List<Order_status> getAllOrderStatusTypes();

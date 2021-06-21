@@ -6,16 +6,17 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
-import webStore.*;
+
 import webStore.DAO.MySQL_DAO;
 import webStore.model.Customer;
+import webStore.model.Product;
 import webStore.model.Product_category;
 import webStore.responses.*;
 
@@ -29,6 +30,8 @@ public class Controller
 	private static String html_file;
 	private static String css_file;
 	private static String javascript_file;
+	
+	private static String pathPrefix = "D:\\Knjige za fakultet\\3. godina\\6. semestar\\Baze podataka\\Baze podataka - projekat\\Source\\Web-shop\\src\\main\\webapp\\Resources\\";
 	
 	private static HashMap<Customer, NewCookie> cookies = new HashMap<>();
 	
@@ -82,7 +85,7 @@ public class Controller
     {
     	try
 		{
-			html_file = new String(Files.readAllBytes(Paths.get("D:\\Knjige za fakultet\\3. godina\\6. semestar\\Baze podataka\\Baze podataka - projekat\\Source\\Eclipse project\\src\\main\\webapp\\Resources\\index.html")));
+			html_file = new String(Files.readAllBytes(Paths.get(pathPrefix + "index.html")));
 			return html_file;
 		}
 		catch(Exception e) {System.out.println("Exception happened: " + e); return null;}
@@ -95,7 +98,7 @@ public class Controller
     {
     	try
 		{
-			css_file = new String(Files.readAllBytes(Paths.get("D:\\Knjige za fakultet\\3. godina\\6. semestar\\Baze podataka\\Baze podataka - projekat\\Source\\Eclipse project\\src\\main\\webapp\\Resources\\css\\index.css")));
+			css_file = new String(Files.readAllBytes(Paths.get(pathPrefix + "css\\index.css")));
 			return css_file;
 		}
 		catch(Exception e) {System.out.println("Exception happened: " + e); return null;}
@@ -108,7 +111,7 @@ public class Controller
     {
     	try
 		{
-			javascript_file = new String(Files.readAllBytes(Paths.get("D:\\Knjige za fakultet\\3. godina\\6. semestar\\Baze podataka\\Baze podataka - projekat\\Source\\Eclipse project\\src\\main\\webapp\\Resources\\js\\index.js")));
+			javascript_file = new String(Files.readAllBytes(Paths.get(pathPrefix + "js\\index.js")));
 			return javascript_file;
 		}
 		catch(Exception e) {System.out.println("Exception happened: " + e); return null;}
@@ -193,6 +196,36 @@ public class Controller
 		subcategoriesWrapper.contents = subcategories;
 		
 		return Response.status(200).entity(subcategoriesWrapper).build();
+	}
+	
+	@PUT
+	@Path("/filter-product")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response filterProducts(List<ID_string_pair> filter_value_ID_string_pairs)
+	{
+		List<Integer> filterIdentifiers = new ArrayList<>();
+		for(ID_string_pair pair : filter_value_ID_string_pairs)
+			filterIdentifiers.add(pair.ID);
+		
+		List<Product> products = customerAccessObject.getFilteredProducts(filterIdentifiers);
+		List<TrimmedProduct> responseProducts = new ArrayList<>();
+		
+		for(Product p : products)
+			responseProducts.add(new TrimmedProduct(p.product_ID, p.name, p.thumbnail, p.price.toString()));
+		
+		return Response.status(200).entity(responseProducts).build();
+	}
+	
+	@GET
+	@Path("/product/{productID}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getProduct(@PathParam("productID") int productID)
+	{
+		Product product = customerAccessObject.getProduct(productID);
+		if(product == null)
+			return Response.status(404).build();
+		
+		return Response.status(200).entity(product).build();
 	}
 
 }

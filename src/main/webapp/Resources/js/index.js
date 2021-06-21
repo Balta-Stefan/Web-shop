@@ -73,13 +73,18 @@ function removeChildren(element)
 // not tested
 async function examineProduct(productID)
 {
-	var URL = URLprefix + "products/" + productID;
+	console.log("inside examine product");
+	var URL = URLprefix + "product/" + productID;
+	console.log(URL);
 	var response = await make_request(URL, "GET", JSON_headers, null);
 	if(!response.ok)
 	{
 		alert("Error");
 		return;
 	}
+	
+	var responseJSON = await response.json();
+	console.log(JSON.stringify(responseJSON));
 	
 	// to do
 	
@@ -107,7 +112,7 @@ function addProducts(products)
 		product_list.appendChild(template_clone);
 		
 		// populate the template instance with info
-		var productLink = document.getElementById("product_image_link");
+		var productLink = document.getElementById("product_link");
 		var productThumbnail = document.getElementById("product_thumbnail");
 		var productName = document.getElementById("product_name");
 		var productPrice = document.getElementById("product_price");
@@ -134,8 +139,6 @@ async function sendFilters()
 {
 	var selectedFilters = getSelectedCheckboxes();
 	
-	// to do
-	
 	// response contains an array of products
 	
 	
@@ -148,8 +151,8 @@ async function sendFilters()
 		var tempObject = {ID: selectedFilters[i]}
 		body.push(tempObject);
 	}
-	
-	var response = await make_request(URL, "GET", JSON_headers, JSON.stringify(body));
+	console.log(JSON.stringify(body));
+	var response = await make_request(URL, "PUT", JSON_headers, JSON.stringify(body));
 	
 	if(!response.ok)
 	{
