@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Stefan's web shop</title>
+		<link href="v1/css/index.css" type="text/css" rel="stylesheet" />
+		<script src="v1/js/index.js" type="text/javascript" defer></script>
+		<meta charset="UTF-8">
+		<meta name="author" content="Balta Stefan">
+		<meta name="viewport" content="width=device-width, initial-scale=1"> <!-- media queries don't work without this line-->
+	</head>
+	
+	<body>
+		<header>
+			<a href="">Web store</a>
+			<a id="login_button" href="#">Login</a>
+			<a id="shopping_cart_button" href="#" style="display:none">Shopping cart</a>
+		</header>
+		
+		<div id="sidenav_and_main_content_wrapper">
+			<div id="sidenav">
+
+			</div>
+			
+			<div id="main_content">
+				<div id="products_list" style="display:none;">
+					<h1 id="chosen_category_name"></h1>
+					<ul id="product_list">
+					
+					</ul>
+				</div>
+				
+				<div id="other_content" style="display:none;">
+				
+				</div>
+			</div>
+		</div>
+
+		
+		<template id="product_wrapper_template">
+			<a href="#" class="product_image_link">
+				<li class="product_info_wrapper">
+					<img id="product_thumbnail" src="">
+					<div class="product_info">
+						<p id="product_name">Some big name smartphone</p>
+						<p id="product_price">Product price</p>
+					</div>
+				</li>
+			</a>
+		</template>
+		
+		<template id="filters_template">
+			<div id="category_button_wrapper">
+				<!-- Contains as many filter_row_template template instances as needed -->
+			</div>
+			<button id="send_filters_button"><b>Filtriraj</b></button>
+		</template>
+		
+		<template id="single_filter_template">
+			<div class="filter-row">
+				<a href="#" id="filter_link"></a>
+				<div style="display:none;" id="filter_values" class="values_wrapper">
+					<!-- contains checkbox-paragraph pairs (located inside filter_value_template)-->
+				</div>
+			</div>
+		</template>
+		
+		<template id="filter_value_template">
+			<div class="input-paragraph-row">
+				<input type="checkbox" id="filter_checkbox">
+				<label id="filter_checkbox_label"></label>
+			</div>
+		</template>
+		
+		<template id="login_and_register_template">
+			<div id="login_panel">
+				<form class="login_register_form" id="login_form">
+					<label for="email"><b>Email</b></label>
+					<input class="login_input" type="text" name="email" required oninvalid="this.setCustomValidity('Enter email')" oninput="setCustomValidity('')">
+					
+					<label for="password"><b>Password</b></label>
+					<input class="login_input" type="password" name="password" required oninvalid="this.setCustomValidity('Enter password')" oninput="setCustomValidity('')">
+					<a href="#" id="forgotten_password">Forgot password</a>
+					
+					<button class="login_buttons" type="submit" id="login_button"><b>Login</b></button>
+					<button class="login_buttons" type="button" id="register_button"><b>Register</b></button>
+				</form>
+			</div>
+		</template>
+		
+		<template id="register_panel">
+			<form class="login_register_form" id="register_form">
+				<label for="name"><b>Name</b></label>
+				<input class="login_input" type="text" name="name" required oninvalid="this.setCustomValidity('Enter your name')" oninput="setCustomValidity('')">
+				
+				<label for="last_name"><b>Last name</b></label>
+				<input class="login_input" type="text" name="last_name" required oninvalid="this.setCustomValidity('Enter your last name')" oninput="setCustomValidity('')">
+				
+				<label for="phone"><b>Phone</b></label>
+				<input class="login_input" type="text" name="phone" required oninvalid="this.setCustomValidity('Enter your phone number')" oninput="setCustomValidity('')">
+
+				<label for="address"><b>Address</b></label>
+				<input class="login_input" type="text" name="address" required oninvalid="this.setCustomValidity('Enter your address')" oninput="setCustomValidity('')">
+
+				<label for="city"><b>City</b></label>
+				<input class="login_input" type="text" name="city" required oninvalid="this.setCustomValidity('Enter your city')" oninput="setCustomValidity('')">
+
+				<label for="country"><b>Country</b></label>
+				<input class="login_input" type="text" name="country" required oninvalid="this.setCustomValidity('Enter your country')" oninput="setCustomValidity('')">
+
+				<label for="state"><b>State</b></label>
+				<input class="login_input" type="text" name="state" required oninvalid="this.setCustomValidity('Enter your state')" oninput="setCustomValidity('')">
+
+				<label for="zip"><b>Zip</b></label>
+				<input class="login_input" type="text" name="zip" required oninvalid="this.setCustomValidity('Enter your zip code')" oninput="setCustomValidity('')">
+
+				<label for="email"><b>Email</b></label>
+				<input class="login_input" type="text" name="email" required oninvalid="this.setCustomValidity('Enter your email address')" oninput="setCustomValidity('')">
+	
+				<label for="password"><b>Password</b></label>
+				<input class="login_input" type="password" name="password" required oninvalid="this.setCustomValidity('Enter your password')" oninput="setCustomValidity('')">
+
+				<label for="password_confirm"><b>Confirm password</b></label>
+				<input class="login_input" type="password" name="password_confirm" required oninvalid="this.setCustomValidity('Confirm password')" oninput="setCustomValidity('')">
+
+				<button class="login_buttons" type="submit" id="send_registration_button"><b>Register</b></button>
+				<label id="registration_response"></label>
+			</form>
+		</template>
+		
+		<template id="shopping_cart_panel">
+			<div id="articles_in_cart_holder">
+				<!-- Holds shopping_cart_item_template templates -->
+			</div>
+			<button id="buy_shopping_cart"><b>Buy</b></button>
+		</template>
+		
+		<template id="shopping_cart_item_template">
+			<div class="shopping_cart_item" id="cart_item_wrapper">
+				<img class="shopping_cart_product_thumbnail" id="cart_item_thumbnail"></img>
+				<p class="shopping_cart_product_name" id="cart_item_name">Name: </p>
+				<p class="shopping_cart_product_price" id="cart_item_price">Price: </p>
+				<button class="remove_item_from_shopping_cart_button" id="cart_item_remove_button"><b>Remove</b></button>
+			</div>
+		</template>
+	</body>
+</html>
+
+
+
+
