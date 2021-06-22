@@ -158,13 +158,13 @@ button#send_filters_button:hover{
 }
 
 .product_link_class{
-	display: inline-block; /* this makes sure the div doesn't get bigger than its contents */
+	display: inline-block;  /*this makes sure the div doesn't get bigger than its contents */
 	/*border: solid;
 	color: red;*/
 }
 
 .product_link_class:hover{
-	box-shadow: 0 4px 8px 0 white, 0 6px 20px 0 white;
+	box-shadow: 0 4px 8px 0 gray, 0 6px 20px 0 black;
 	/*
 		rgba(0, 0, 0, 0.2)
 		rgba(0, 0, 0, 0.19)
