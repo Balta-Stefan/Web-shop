@@ -26,17 +26,19 @@ header {
 }
 
 /* Links inside the navbar */
-header a {
-  float: left;
-  display: block;
-  color: #f2f2f2;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
+header p {
+	float: left;
+	display: block;
+	color: #f2f2f2;
+	text-align: center;
+	padding: 14px 16px;
+	text-decoration: none;
+	margin: 0;
+	cursor: pointer;
 }
 
 /* Change background on mouse-over */
-header a:hover {
+header p:hover {
   background: #ddd;
   color: black;
 }
@@ -66,18 +68,20 @@ div#sidenav{
 	overflow: auto;
 }
 
-div#sidenav a {
-  padding: 6px 8px 6px 16px;
-  text-decoration: none;
-  font-size: 25px;
-  color: #818181;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+div#sidenav p {
+	/*padding: 6px 8px 6px 16px;*/
+	cursor: pointer;
+	margin: 15px;
+	text-decoration: none;
+	font-size: 25px;
+	color: #818181;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
-div#sidenav a:hover {
-  color: #f1f1f1;
+div#sidenav p:hover {
+	color: #f1f1f1;
 }
 
 ul#product_list{

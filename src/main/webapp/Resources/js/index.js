@@ -228,7 +228,7 @@ function addCategories(categories)
 		let tempName = categories[i].name
 		
 		// Create anchor element.
-		var a = document.createElement('a'); 
+		var a = document.createElement('p'); 
 		  
 		// Create the text node for anchor element.
 		var link = document.createTextNode(tempName);
@@ -240,7 +240,7 @@ function addCategories(categories)
 		a.title = tempName; 
 		  
 		// Set the href property.
-		a.href = "#"; 
+		//a.href = "#"; 
 		  
 		// Append the anchor element to the body.
 		sidePanel.appendChild(a); 
