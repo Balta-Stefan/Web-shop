@@ -4,7 +4,8 @@
 	These elements will be inserted as HTML code where buttons will contain onaction attribute.
 */
 
-const currencySymbol = "KM";
+const currencySymbol = " KM";
+const massUnit = " kg";
 const URLprefix = "v1/";
 const chosenCategoryHeader = document.getElementById("chosen_category_name");
 const JSON_headers = 
@@ -12,6 +13,9 @@ const JSON_headers =
 	"Content-Type": "application/json",
 	"Accept": "application/json"
 };
+
+var my_email = null;
+var ownID = null;
 
 var sidePanel = document.getElementById("sidenav");
 var product_list = document.getElementById("product_list");
@@ -23,6 +27,11 @@ var other_content_panel = document.getElementById("other_content");
 
 shopping_cart_button.addEventListener("click", activate_shopping_cart_panel);
 login_button.addEventListener("click", activate_login_panel);
+
+
+
+
+
 
 async function make_request(URL, method, headers, body_content)
 {
@@ -73,6 +82,9 @@ function removeChildren(element)
 // not tested
 async function examineProduct(productID)
 {
+	// clear the side panel
+	removeChildren(sidePanel);
+	
 	console.log("inside examine product");
 	var URL = URLprefix + "product/" + productID;
 	console.log(URL);
@@ -86,8 +98,46 @@ async function examineProduct(productID)
 	var responseJSON = await response.json();
 	console.log(JSON.stringify(responseJSON));
 	
-	// to do
 	
+	removeChildren(products_list);
+	activate_template(products_list, "examine_product_template");
+	
+	var thumbnail = document.getElementById("examine_product_thumbnail");
+	thumbnail.src = responseJSON.thumbnail;
+	var product_name = document.getElementById("other_product_info_wrapper-product_name");
+	product_name.innerHTML = responseJSON.name;
+	var product_description = document.getElementById("other_product_info_wrapper-product_description");
+	product_description.innerHTML = responseJSON.description;
+	var product_manufacturer = document.getElementById("other_product_info_wrapper-product_manufacturer");
+	product_manufacturer.innerHTML += responseJSON.manufacturer;
+	var product_mass = document.getElementById("other_product_info_wrapper-product_mass");
+	product_mass.innerHTML += responseJSON.mass + massUnit;
+	var product_price = document.getElementById("other_product_info_wrapper-product_price");
+	product_price.innerHTML += responseJSON.price + currencySymbol;
+	var product_warranty = document.getElementById("other_product_info_wrapper-product_warranty");
+	product_warranty.innerHTML += responseJSON.warranty_months + " months";
+	
+	var buy_button = document.getElementById("buy_product_button");
+	
+	
+	var product_ID = responseJSON.product_ID;
+	buy_button.addEventListener("click", async function()
+	{
+		var quantity = document.getElementById("buy_product_amount_input").value;
+		// add the product to the customer's cart
+		var URL = URLprefix + "buy/" + product_ID;
+		var body = {"ID": product_ID, "quantity": quantity, "customer_email": my_email}
+		console.log(JSON.stringify(body));
+		var response = await make_request(URL, "PUT", JSON_headers, JSON.stringify(body));
+		
+		if(!response.ok)
+		{
+			alert("Error");
+			return;
+		}
+		
+		alert("Product added to cart");
+	});
 }
 // not tested
 function addProducts(products)
@@ -412,6 +462,8 @@ function activate_registration_panel()
 			alert("Registration unsuccessful");
 			return;
 		}
+
+		
 		alert("Registration successful");
 	});
 }
@@ -431,8 +483,12 @@ function activate_login_panel()
 		var formData = new FormData(this);
 		var formData_JSON = FormData_to_JSON(formData);
 		
+		my_email = JSON.parse(formData_JSON).email;
+
+		
 		var URL =  URLprefix + "customers/login";
 		var response = await make_request(URL, "POST", JSON_headers, formData_JSON);
+		
 		
 		if(!response.ok)
 		{
@@ -440,15 +496,24 @@ function activate_login_panel()
 			return;
 		}
 		
+		var responseJSON = await response.json();
+		console.log(responseJSON);
+		ownID = responseJSON.ID;
+		
 		// login successful
 		other_content_panel.style.display = "none";
 		articles_panel.style.display = "block"; // this might be incorrect, try flex if block doesn't work
+		
+		var login_panel = document.getElementById("login_panel");
+		login_panel.style.display = "none";
+		
 		var main_categories = await get_main_categories();
 		if(main_categories == null)
 		{
 			alert("Error");
 			return;
 		}
+		
 		addCategories(main_categories);
 		
 		login_button.style.display = "none";
@@ -473,7 +538,7 @@ async function get_shopping_cart_items()
 		}
 	*/
 	
-	var URL =  URLprefix + "customers/shopping-cart";
+	var URL =  URLprefix + "customers/" + ownID + "/shopping-cart";
 	var response = await make_request(URL, "GET", JSON_headers, null);
 	if(!response.ok)
 		return null;
@@ -484,9 +549,9 @@ async function get_shopping_cart_items()
 // not tested
 async function remove_item_from_shopping_cart(product_ID)
 {
-	var URL =  URLprefix + "customers/shopping-cart";
+	var URL =  URLprefix + "customers/" + ownID + "/shopping-cart/" + product_ID;
 	var tempObj = {product_ID};
-	var response = await make_request(URL, "DELETE", JSON_headers, JSON.stringify(tempObj));
+	var response = await make_request(URL, "DELETE", JSON_headers, null);
 	
 	if(!response.ok)
 	{
@@ -502,7 +567,10 @@ async function remove_item_from_shopping_cart(product_ID)
 // not tested
 async function activate_shopping_cart_panel()
 {
-	removeChildren(other_content_panel);
+	removeChildren(sidePanel);
+	removeChildren(other_content);
+	removeChildren(products_list);
+	//product_list.style.display = "none";
 	activate_template(other_content_panel, "shopping_cart_panel");
 	
 	var shopping_cart_items = await get_shopping_cart_items();
@@ -511,6 +579,7 @@ async function activate_shopping_cart_panel()
 		alert("Error");
 		return;
 	}
+	
 	
 	// populate the shopping cart panel
 	var articles_holder = document.getElementById("articles_in_cart_holder");
@@ -526,22 +595,27 @@ async function activate_shopping_cart_panel()
 		var item_price = document.getElementById("cart_item_price");
 		var item_remove_button = document.getElementById("cart_item_remove_button");
 		var cart_item_wrapper = document.getElementById("cart_item_wrapper");
+		var item_quantity = document.getElementById("cart_item_quantity");
 		
 		item_thumbnail.src = shopping_cart_items[i].thumbnail;
 		item_name.innerHTML += shopping_cart_items[i].name;
-		item_price.innerHTML += shopping_cart_items[i].price + currencySymbol;
-		let tmp = shopping_cart_items[i].ID;
+		item_price.innerHTML += shopping_cart_items[i].price*shopping_cart_items[i].quantity + currencySymbol;
+		item_quantity.innerHTML += shopping_cart_items[i].quantity;
+		let tmp = shopping_cart_items[i].product_ID;
 		item_remove_button.addEventListener("click", function()
 		{
 			remove_item_from_shopping_cart(tmp);
 		});
 		
-		item_thumbnail.id = shopping_cart_items[i].ID + "-thumbnail";
-		item_name.id = shopping_cart_items[i].ID + "-name";
-		item_price.id = shopping_cart_items[i].ID + "-price";
-		item_remove_button.id = shopping_cart_items[i].ID + "-remove-button";
-		cart_item_wrapper.id = shopping_cart_items[i].ID;
+		item_thumbnail.id = shopping_cart_items[i].product_ID + "-thumbnail";
+		item_name.id = shopping_cart_items[i].product_ID + "-name";
+		item_price.id = shopping_cart_items[i].product_ID + "-price";
+		item_quantity.id = shopping_cart_items[i].product_ID + "-quantity";
+		item_remove_button.id = shopping_cart_items[i].product_ID + "-remove-button";
+		cart_item_wrapper.id = shopping_cart_items[i].product_ID;
 	}
+	
+	other_content_panel.style.display = "block";
 }
 
 /*for(var i = 0; i < 20; i++)

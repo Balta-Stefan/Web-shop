@@ -39,7 +39,7 @@
 		<template id="product_wrapper_template">
 			<div id="product_link" class="product_link_class">
 				<li class="product_info_wrapper">
-					<img id="product_thumbnail" src="">
+					<img class="product_thumbnail_class" id="product_thumbnail" src="">
 					<div class="product_info">
 						<p id="product_name">Some big name smartphone</p>
 						<p id="product_price">Product price</p>
@@ -139,13 +139,27 @@
 				<img class="shopping_cart_product_thumbnail" id="cart_item_thumbnail"></img>
 				<p class="shopping_cart_product_name" id="cart_item_name">Name: </p>
 				<p class="shopping_cart_product_price" id="cart_item_price">Price: </p>
+				<p class="shopping_cart_product_quantity" id="cart_item_quantity">Quantity: </p>
 				<button class="remove_item_from_shopping_cart_button" id="cart_item_remove_button"><b>Remove</b></button>
 			</div>
 		</template>
 		
 		<template id="examine_product_template">
 			<div id="examine_product_wrapper">
+				<img id="examine_product_thumbnail"></img>
 				
+				<div id="other_product_info_wrapper">
+					<h1 id="other_product_info_wrapper-product_name"></h1>
+					<h4 id="other_product_info_wrapper-product_manufacturer">Manufacturer: </h4>
+					<h4 id="other_product_info_wrapper-product_mass">Mass: </h4>
+					<h4 id="other_product_info_wrapper-product_price">Price: </h4>
+					<h4 id="other_product_info_wrapper-product_warranty">Warranty: </h4>
+					<p id="other_product_info_wrapper-product_description"></p>
+					
+					<label for="buy_product_amount_input">Quantity:</label>
+					<input min="1" type="number" value="1" placeholder="quantity" id="buy_product_amount_input"></input>
+					<button id="buy_product_button"><b>Buy</b></button>
+				</div>
 			</div>
 		</template>
 		
