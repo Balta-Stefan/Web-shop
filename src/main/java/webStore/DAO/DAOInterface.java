@@ -57,8 +57,10 @@ public interface DAOInterface
 
     // Customer related
     Customer getCustomer(String email);
+    Customer getCustomer(int ID);
     boolean customerRegistration(Customer customer);
     boolean addReview(Product_review review);
+    boolean updateShoppingCart(Customer customer);
 
     // manufacturer related
     boolean addManufacturer(Manufacturer manufacturer);

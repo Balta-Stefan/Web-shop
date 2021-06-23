@@ -40,6 +40,7 @@ public class MySQL_DAO implements DAOInterface
     private static final String addReturnedReason = "UPDATE Orders SET returned_reason=? WHERE order_ID=?";
     private static final String getEmployee = "SELECT * FROM Employees WHERE username=?";
     private static final String getCustomer = "SELECT * FROM Customers WHERE email=?";
+    private static final String getCustomerByID = "SELECT * FROM Customers WHERE customer_ID = ?";
     private static final String registerCustomer = "INSERT INTO Customers(name, last_name, email, password, phone, shipping_address, city, state, ZIP_code) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String addReview = "INSERT INTO Product_reviews(grade, comment, product_ID, customer) VALUES(?, ?, ?, ?)";
     private static final String getAllProducts = "SELECT * FROM Products";
@@ -54,6 +55,7 @@ public class MySQL_DAO implements DAOInterface
     private static final String get_filters = "select T.filter, T.filter_ID, T.filter_value_ID, T.value from (select * from (product_categories join category_filters using(category_ID) join filter_values using(filter_ID)) ) AS T where T.category_ID=?";
     private static final String get_product = "SELECT * FROM Products WHERE product_ID = ?";
     private static final String get_manufacturer = "SELECT * FROM Manufacturers WHERE manufacturer_ID = ?";
+    private static final String update_shopping_cart = "UPDATE Customers SET shopping_cart = ? WHERE customer_ID = ?";
     
     // prepared statements
     private final PreparedStatement addProductStatement;
@@ -82,6 +84,8 @@ public class MySQL_DAO implements DAOInterface
     private final PreparedStatement getFiltersStatement;
     private final PreparedStatement getProductStatement;
     private final PreparedStatement getManufacturerStatement;
+    private final PreparedStatement updateShoppingCartStatement;
+    private final PreparedStatement getCustomerByIDStatement;
     
     private final CallableStatement insert_category_statement;
     private final CallableStatement delete_category_statement;
@@ -116,9 +120,24 @@ public class MySQL_DAO implements DAOInterface
         getFiltersStatement = connection.prepareStatement(get_filters);
         getProductStatement = connection.prepareStatement(get_product);
         getManufacturerStatement = connection.prepareStatement(get_manufacturer);
+        updateShoppingCartStatement = connection.prepareStatement(update_shopping_cart);
+        getCustomerByIDStatement = connection.prepareStatement(getCustomerByID);
         
         insert_category_statement = connection.prepareCall(insert_category_call);
         delete_category_statement = connection.prepareCall(delete_category_call);
+    }
+    
+    public boolean updateShoppingCart(Customer customer)
+    {
+    	try
+    	{
+    		updateShoppingCartStatement.setString(1, customer.shopping_cart);
+    		updateShoppingCartStatement.setInt(2,  customer.customer_ID);
+    		updateShoppingCartStatement.execute();
+    		
+    		return true;
+    	}
+    	catch(SQLException e) {return false;}
     }
     
     public Manufacturer getManufacturer(int manufacturerID)
@@ -640,6 +659,30 @@ public class MySQL_DAO implements DAOInterface
         return found;
     }
 
+    public Customer getCustomer(int ID)
+    {
+    	try
+    	{
+    		getCustomerByIDStatement.setInt(1, ID);
+    		ResultSet result = getCustomerByIDStatement.executeQuery();
+    		result.next();
+    		
+            Customer found = new Customer(result.getInt("customer_ID"),
+                    result.getString("name"),
+                    result.getString("last_name"),
+                    result.getString("email"),
+                    result.getString("password"),
+                    result.getString("phone"),
+                    result.getString("shipping_address"),
+                    result.getString("city"),
+                    result.getString("state"),
+                    result.getString("ZIP_code"),
+                    result.getString("shopping_cart"));
+            return found;
+    	}
+    	catch(SQLException e) {return null;}
+    }
+    
     @Override
     public boolean customerRegistration(Customer customer)
     {

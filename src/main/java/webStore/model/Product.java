@@ -14,6 +14,7 @@ public class Product
     public String description, thumbnail;
     public byte warranty_months;
 
+    public int quantity; // used when returning customer's cart
     
     public Product(int product_ID, String name, int manufacturer_ID, BigDecimal price, int category_ID, double mass, String description, String thumbnail, byte warranty_months)
     {
