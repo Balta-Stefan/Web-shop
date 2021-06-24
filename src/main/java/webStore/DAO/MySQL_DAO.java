@@ -26,7 +26,7 @@ public class MySQL_DAO implements DAOInterface
     private final Connection connection;
 
     // SQL query constants
-    private static final String addProductQuery = "INSERT INTO Products(name, manufacturer, price, category, mass, description, thumbnail, warranty_months) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String addProductQuery = "INSERT INTO Products(name, manufacturer, category, mass, description, thumbnail, warranty_months) VALUES(?, ?, ?, ?, ?, ?, ?)";
     private static final String addProductPicture = "INSERT INTO Product_pictures(product_ID, picture_URI) VALUES(?, ?)";
     //private static final String addProductCategory = "INSERT INTO Product_categories(category_name) VALUES(?)";
     private static final String addCategoryFilter = "INSERT INTO Category_filters(category_ID, filter) VALUES(?, ?)";
@@ -379,16 +379,17 @@ public class MySQL_DAO implements DAOInterface
     @Override
     public boolean addProduct(Product product)
     {
+    	// price is set to null.This is because price is automatically set when a product is added to inventory.
         try
         {
             addProductStatement.setString(1, product.name);
             addProductStatement.setInt(2, product.manufacturer_ID);
-            addProductStatement.setBigDecimal(3, product.price);
-            addProductStatement.setInt(4, product.category_ID);
-            addProductStatement.setDouble(5, product.mass);
-            addProductStatement.setString(6, product.description);
-            addProductStatement.setString(7, product.thumbnail);
-            addProductStatement.setByte(8, product.warranty_months);
+            //addProductStatement.setBigDecimal(3, product.price);
+            addProductStatement.setInt(3, product.category_ID);
+            addProductStatement.setDouble(4, product.mass);
+            addProductStatement.setString(5, product.description);
+            addProductStatement.setString(6, product.thumbnail);
+            addProductStatement.setByte(7, product.warranty_months);
 
             addProductStatement.executeUpdate();
         }
