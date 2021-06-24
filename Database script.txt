@@ -364,20 +364,6 @@ DELIMITER ;
 
 
 
--- -----------------------------------------------------
--- Placeholder table for view `mydb`.`Employee_access_to_Employees`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Employee_access_to_Employees` (`username` INT, `password` INT);
-
--- -----------------------------------------------------
--- View `mydb`.`Employee_access_to_Employees`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Employee_access_to_Employees`;
-USE `mydb`;
-CREATE  OR REPLACE VIEW `Employee_access_to_Employees` AS
-SELECT username, password FROM Employees;
-USE `mydb`;
-
 DELIMITER $$
 
 USE `mydb`$$

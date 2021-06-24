@@ -182,7 +182,7 @@ public class MySQL_DAO implements DAOInterface
     	}
     	catch(SQLException e) {return null;}
     }
-    
+  
     public boolean updateShoppingCart(Customer customer)
     {
     	try

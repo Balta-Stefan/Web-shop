@@ -42,8 +42,7 @@ import webStore.responses.*;
 @Path("/v1")
 public class Controller
 {
-	private static MySQL_DAO customerAccessObject;
-	private static MySQL_DAO employeeAccessObject;
+	private static MySQL_DAO DBAccessObject;
 	
 	private static String html_file;
 	private static String css_file;
@@ -63,9 +62,9 @@ public class Controller
 		{
 		 	Class.forName("com.mysql.cj.jdbc.Driver"); 
 		    Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/mydb", "root", "sigurnost");
-		    customerAccessObject = new MySQL_DAO(connection);
+		    DBAccessObject = new MySQL_DAO(connection);
 		    
-		    List<Order_status> tmpList = customerAccessObject.getAllOrderStatusTypes();
+		    List<Order_status> tmpList = DBAccessObject.getAllOrderStatusTypes();
 		    for(Order_status s : tmpList)
 		    {
 		    	if(s.status_type.equals(ordered_status_name))
@@ -155,7 +154,7 @@ public class Controller
 	public Response registerUser(Customer registrationInfo)
 	{
 		// only emails are unique so there is no need to check if the user already exists
-		boolean response = customerAccessObject.customerRegistration(registrationInfo);
+		boolean response = DBAccessObject.customerRegistration(registrationInfo);
 		
 		if(response == true)
 			return Response.status(200).build();
@@ -187,7 +186,7 @@ public class Controller
 		}
 		
 		// getCustomer(String email)
-		Customer customerData = customerAccessObject.getCustomer(customer.email);
+		Customer customerData = DBAccessObject.getCustomer(customer.email);
 		if(customerData == null || customer.password.equals(customerData.password) == false)
 			return Response.status(404).build();
 		
@@ -212,7 +211,7 @@ public class Controller
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getMainCategories()
 	{
-		List<ID_string_pair> categories = customerAccessObject.getMainCategories();
+		List<ID_string_pair> categories = DBAccessObject.getMainCategories();
 		if(categories == null)
 			return Response.status(400).build();
 		for(ID_string_pair m : categories)
@@ -228,17 +227,17 @@ public class Controller
 	{
 		// first determine whether a category contains any subcategories.If it does, get its subcategories.If it doesn't, get its filters.
 		
-		Product_category category = customerAccessObject.getCategory(categoryID);
+		Product_category category = DBAccessObject.getCategory(categoryID);
 		if(category.number_of_subcategories == 0)
 		{
 			// get the category's filters
 			Filters filters = new Filters();
-			filters.contents = customerAccessObject.get_filters(categoryID);
+			filters.contents = DBAccessObject.get_filters(categoryID);
 			return Response.status(200).entity(filters).build();
 		}
 		
 		// get subcategories
-		List<ID_string_pair> subcategories = customerAccessObject.get_subcategories(categoryID);
+		List<ID_string_pair> subcategories = DBAccessObject.get_subcategories(categoryID);
 		Subcategories subcategoriesWrapper = new Subcategories();
 		subcategoriesWrapper.contents = subcategories;
 		
@@ -254,7 +253,7 @@ public class Controller
 		for(ID_string_pair pair : filter_value_ID_string_pairs)
 			filterIdentifiers.add(pair.ID);
 		
-		List<Product> products = customerAccessObject.getFilteredProducts(filterIdentifiers);
+		List<Product> products = DBAccessObject.getFilteredProducts(filterIdentifiers);
 		List<TrimmedProduct> responseProducts = new ArrayList<>();
 		
 		for(Product p : products)
@@ -268,7 +267,7 @@ public class Controller
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getProduct(@PathParam("productID") int productID)
 	{
-		Product product = customerAccessObject.getProduct(productID);
+		Product product = DBAccessObject.getProduct(productID);
 		if(product == null)
 			return Response.status(404).build();
 		
@@ -284,7 +283,7 @@ public class Controller
 		if(purchaser == null)
 			return Response.status(404).build();
 		
-		Customer customer = customerAccessObject.getCustomer(purchaser.customer_ID);
+		Customer customer = DBAccessObject.getCustomer(purchaser.customer_ID);
 		String customerCart = customer.shopping_cart;
 		if(customerCart == null)
 			customerCart = "[]";
@@ -317,7 +316,7 @@ public class Controller
 			jarray.put(obj);
 		
 		customer.shopping_cart = jarray.toString();
-		boolean result = customerAccessObject.updateShoppingCart(customer);
+		boolean result = DBAccessObject.updateShoppingCart(customer);
 	
 		if(result == false)
 			return Response.status(404).build();
@@ -330,7 +329,7 @@ public class Controller
 	{
 		List<Product> cart = new ArrayList<>();
 		
-		Customer customer = customerAccessObject.getCustomer(customerID);
+		Customer customer = DBAccessObject.getCustomer(customerID);
 		if(customer == null)
 			return null;
 		
@@ -340,7 +339,7 @@ public class Controller
 		for(int i = 0; i < jarray.length(); i++)
 		{
 			JSONObject tmp = jarray.getJSONObject(i);
-			Product product = customerAccessObject.getProduct(tmp.getInt("ID"));
+			Product product = DBAccessObject.getProduct(tmp.getInt("ID"));
 			product.quantity = tmp.getInt("quantity");
 			cart.add(product);
 		}
@@ -385,7 +384,7 @@ public class Controller
 	public Response removeProductFromShoppingCart(@PathParam("ID") int customerID, @PathParam("product_ID") int product_ID)
 	{
 		// authentication isn't possible because of the lack of cookies
-		Customer customer = customerAccessObject.getCustomer(customerID);
+		Customer customer = DBAccessObject.getCustomer(customerID);
 		
 		if(customer == null)
 			return Response.status(404).build();
@@ -402,7 +401,7 @@ public class Controller
 				jarray.remove(i);
 				customer.shopping_cart = jarray.toString();
 				
-				if(customerAccessObject.updateShoppingCart(customer) == false)
+				if(DBAccessObject.updateShoppingCart(customer) == false)
 					return Response.status(400).build();
 				
 				return Response.status(200).build();
@@ -428,7 +427,7 @@ public class Controller
 		
 		for(Product p : products)
 		{	//int inventory_ID, int amount, LocalDateTime order_received_at, int status_ID, int ordered_by
-			List<Inventory> inventory_status = customerAccessObject.getProductFromInventory(p.product_ID, true);
+			List<Inventory> inventory_status = DBAccessObject.getProductFromInventory(p.product_ID, true);
 			if(inventory_status == null || inventory_status.size() == 0)
 			{
 				order_statuses.add(new ID_string_pair(p.product_ID, "false"));
@@ -437,7 +436,7 @@ public class Controller
 			// inventory_status list could be sorted by some criteria.A static Filter could be used.
 			
 			Order order = new Order(inventory_status.get(0).inventory_ID, p.quantity, LocalDateTime.now(), ordered_status_ID, customerID);
-			Boolean orderStatus = customerAccessObject.addOrder(order);
+			Boolean orderStatus = DBAccessObject.addOrder(order);
 			
 			order_statuses.add(new ID_string_pair(p.product_ID, orderStatus.toString()));
 		}
@@ -466,7 +465,7 @@ public class Controller
 		}
 		
 		purchaser.shopping_cart = oldShoppingCart.toString();
-		if(customerAccessObject.updateShoppingCart(purchaser) == false)
+		if(DBAccessObject.updateShoppingCart(purchaser) == false)
 			return Response.status(400).build();
 		
 		return Response.status(200).entity(order_statuses).build();
