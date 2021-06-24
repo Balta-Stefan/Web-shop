@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Orders` (
   `order_delivered_at` DATETIME NULL,
   `returned_reason` VARCHAR(2000) NULL,
   `status` INT NOT NULL,
-  `handled_by` INT NOT NULL,
+  `handled_by` INT,
   `ordered_by` INT NOT NULL,
   PRIMARY KEY (`order_ID`),
   INDEX `inventory_ID_idx` (`inventory_ID` ASC) VISIBLE,

@@ -356,4 +356,9 @@ public class Controller
 		
 		return Response.status(400).build();
 	}
+
+	public static void main(String[] args)
+	{
+		
+	}
 }

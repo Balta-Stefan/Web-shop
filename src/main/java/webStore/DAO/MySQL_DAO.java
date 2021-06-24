@@ -56,6 +56,8 @@ public class MySQL_DAO implements DAOInterface
     private static final String get_product = "SELECT * FROM Products WHERE product_ID = ?";
     private static final String get_manufacturer = "SELECT * FROM Manufacturers WHERE manufacturer_ID = ?";
     private static final String update_shopping_cart = "UPDATE Customers SET shopping_cart = ? WHERE customer_ID = ?";
+    private static final String get_all_orders = "SELECT * FROM Orders";
+    private static final String get_order = "SELECT * FROM Orders WHERE order_ID = ?";
     
     // prepared statements
     private final PreparedStatement addProductStatement;
@@ -86,6 +88,8 @@ public class MySQL_DAO implements DAOInterface
     private final PreparedStatement getManufacturerStatement;
     private final PreparedStatement updateShoppingCartStatement;
     private final PreparedStatement getCustomerByIDStatement;
+    private final PreparedStatement getAllOrdersStatement;
+    private final PreparedStatement getOrderStatement;
     
     private final CallableStatement insert_category_statement;
     private final CallableStatement delete_category_statement;
@@ -122,9 +126,58 @@ public class MySQL_DAO implements DAOInterface
         getManufacturerStatement = connection.prepareStatement(get_manufacturer);
         updateShoppingCartStatement = connection.prepareStatement(update_shopping_cart);
         getCustomerByIDStatement = connection.prepareStatement(getCustomerByID);
+        getAllOrdersStatement = connection.prepareStatement(get_all_orders);
+        getOrderStatement = connection.prepareStatement(get_order);
         
         insert_category_statement = connection.prepareCall(insert_category_call);
         delete_category_statement = connection.prepareCall(delete_category_call);
+    }
+    
+    public List<Order> getOrders()
+    {
+    	try
+    	{
+    		List<Order> orders = new ArrayList<>();
+    		
+    		ResultSet results = getAllOrdersStatement.executeQuery();
+    		
+    		while(results.next())
+    		{
+        		Order tempOrder =  new Order(results.getInt("order_ID"), 
+								           results.getInt("inventory_ID"),
+								           results.getInt("amount"), 
+								           (LocalDateTime)(results.getObject("order_received_at", LocalDateTime.class)),
+								           (LocalDateTime)(results.getObject("order_delivered_at", LocalDateTime.class)),
+								           results.getString("returned_reason"),
+								           results.getInt("status"),
+								           results.getInt("handled_by"),
+								           results.getInt("ordered_by"));
+        		orders.add(tempOrder);
+    		}
+    		return orders;
+    	}
+    	catch(SQLException e) {return null;}
+    }
+    public Order getOrder(int orderID)
+    {
+    	try
+    	{
+    		getOrderStatement.setInt(1, orderID);
+    		ResultSet result = getOrderStatement.executeQuery();
+    		
+    		result.next();
+    		
+    		return new Order(result.getInt("order_ID"), 
+			           result.getInt("inventory_ID"),
+			           result.getInt("amount"), 
+			           (LocalDateTime)(result.getObject("order_received_at", LocalDateTime.class)),
+			           (LocalDateTime)(result.getObject("order_delivered_at", LocalDateTime.class)),
+			           result.getString("returned_reason"),
+			           result.getInt("status"),
+			           result.getInt("handled_by"),
+			           result.getInt("ordered_by"));
+    	}
+    	catch(SQLException e) {return null;}
     }
     
     public boolean updateShoppingCart(Customer customer)

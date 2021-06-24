@@ -51,6 +51,8 @@ public interface DAOInterface
     // orders related
     boolean addOrder(Order order);
     boolean addReturnedReason(Order order);
+    List<Order> getOrders();
+    Order getOrder(int orderID);
 
     // Employees related
     Employee getEmployee(String username); // used for employee login
