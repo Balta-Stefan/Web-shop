@@ -46,6 +46,7 @@ public interface DAOInterface
 
     // inventory related
     List<Inventory> getInventory();
+    List<Inventory> getProductFromInventory(int productID, boolean only_non_zero_available_amount);
     boolean addToInventory(Product product, int amount, LocalDateTime delivered_at, Warehouse warehouse, BigDecimal suppliers_price, Supplier supplier);
 
     // orders related

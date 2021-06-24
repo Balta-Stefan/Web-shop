@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,9 @@ import org.json.JSONObject;
 
 import webStore.DAO.MySQL_DAO;
 import webStore.model.Customer;
+import webStore.model.Inventory;
+import webStore.model.Order;
+import webStore.model.Order_status;
 import webStore.model.Product;
 import webStore.model.Product_category;
 import webStore.responses.*;
@@ -34,6 +38,9 @@ public class Controller
 	private static String css_file;
 	private static String javascript_file;
 	
+	private static final String ordered_status_name = "ORDERED";
+	private static int ordered_status_ID; // might cause issues
+	
 	private static String pathPrefix = "D:\\Knjige za fakultet\\3. godina\\6. semestar\\Baze podataka\\Baze podataka - projekat\\Source\\Web-shop\\src\\main\\webapp\\Resources\\";
 	
 	private static HashMap<String, Customer> cookies = new HashMap<>(); // maps email to a customer
@@ -46,6 +53,16 @@ public class Controller
 		 	Class.forName("com.mysql.cj.jdbc.Driver"); 
 		    Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/mydb", "root", "sigurnost");
 		    customerAccessObject = new MySQL_DAO(connection);
+		    
+		    List<Order_status> tmpList = customerAccessObject.getAllOrderStatusTypes();
+		    for(Order_status s : tmpList)
+		    {
+		    	if(s.status_type.equals(ordered_status_name))
+		    	{
+		    		ordered_status_ID = s.status_ID;
+		    		break;
+		    	}
+		    }
 		}
 		catch(Exception e){System.out.println("ovo je greska: " + e);}
 		
@@ -247,11 +264,10 @@ public class Controller
 		return Response.status(200).entity(product).build();
 	}
 
-	
 	@PUT
 	@Path("/buy/{ID}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response buyProduct(@PathParam("ID") int productID, BuyProduct quantity)
+	public Response add_product_to_inventory(@PathParam("ID") int productID, BuyProduct quantity)
 	{
 		Customer customer = cookies.get(quantity.customer_email);
 		if(customer == null)
@@ -297,6 +313,27 @@ public class Controller
 		return Response.status(200).build();
 	}
 	
+	private List<Product> get_customer_shopping_cart(int customerID)
+	{
+		List<Product> cart = new ArrayList<>();
+		
+		Customer customer = customerAccessObject.getCustomer(customerID);
+		if(customer == null)
+			return null;
+		
+		String shoppingCart = customer.shopping_cart;
+		JSONArray jarray = new JSONArray(shoppingCart);
+		
+		for(int i = 0; i < jarray.length(); i++)
+		{
+			JSONObject tmp = jarray.getJSONObject(i);
+			Product product = customerAccessObject.getProduct(tmp.getInt("ID"));
+			product.quantity = tmp.getInt("quantity");
+			cart.add(product);
+		}
+		
+		return cart;
+	}
 	
 	@GET
 	@Path("/customers/{ID}/shopping-cart")
@@ -304,7 +341,7 @@ public class Controller
 	public Response getShoppingCart(@PathParam("ID") int customerID)
 	{
 		// authentication isn't possible because of the lack of cookies
-		Customer customer = customerAccessObject.getCustomer(customerID);
+		/*Customer customer = customerAccessObject.getCustomer(customerID);
 		
 		if(customer == null)
 			return Response.status(404).build();
@@ -320,7 +357,10 @@ public class Controller
 			Product product = customerAccessObject.getProduct(tmp.getInt("ID"));
 			product.quantity = tmp.getInt("quantity");
 			items_in_cart.add(product);
-		}
+		}*/
+		List<Product> items_in_cart = get_customer_shopping_cart(customerID);
+		if(items_in_cart == null) 
+			return Response.status(404).build();
 		
 		return Response.status(200).entity(items_in_cart).build();
 	}
@@ -357,8 +397,44 @@ public class Controller
 		return Response.status(400).build();
 	}
 
+	@PUT
+	@Path("/customers/{ID}/shopping-cart/buy")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response buyShoppingCart(@PathParam("ID") int customerID)
+	{
+		List<ID_string_pair> order_statuses = new ArrayList<>();
+		
+		List<Product> products = get_customer_shopping_cart(customerID);
+
+		if(products == null)
+			return Response.status(404).build();
+		
+		for(Product p : products)
+		{	//int inventory_ID, int amount, LocalDateTime order_received_at, int status_ID, int ordered_by
+			List<Inventory> inventory_status = customerAccessObject.getProductFromInventory(p.product_ID, true);
+			if(inventory_status == null || inventory_status.size() == 0)
+			{
+				order_statuses.add(new ID_string_pair(p.product_ID, "false"));
+				continue;
+			}
+			// inventory_status list could be sorted by some criteria.A static Filter could be used.
+			
+			Order order = new Order(inventory_status.get(0).inventory_ID, p.quantity, LocalDateTime.now(), ordered_status_ID, customerID);
+			Boolean orderStatus = customerAccessObject.addOrder(order);
+			
+			order_statuses.add(new ID_string_pair(p.product_ID, orderStatus.toString()));
+		}
+		
+		return Response.status(200).entity(products).build();
+	}
+	
 	public static void main(String[] args)
 	{
+		List<Order> tmp = customerAccessObject.getOrders();
+		for(Order t : tmp)
+			System.out.println(t);
 		
+		Order tmp2 = customerAccessObject.getOrder(1);
+		System.out.println(tmp2);
 	}
 }

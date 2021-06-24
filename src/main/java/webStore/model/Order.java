@@ -37,4 +37,14 @@ public class Order
         this.status_ID = status_ID;
         this.ordered_by = ordered_by;
     }
+
+
+	@Override
+	public String toString()
+	{
+		return "Order [order_ID=" + order_ID + ", inventory_ID=" + inventory_ID + ", amount=" + amount
+				+ ", order_received_at=" + order_received_at + ", order_delivered_at=" + order_delivered_at
+				+ ", returned_reason=" + returned_reason + ", status_ID=" + status_ID + ", handled_by=" + handled_by
+				+ ", ordered_by=" + ordered_by + "]";
+	}
 }

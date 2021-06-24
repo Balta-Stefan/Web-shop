@@ -58,6 +58,7 @@ public class MySQL_DAO implements DAOInterface
     private static final String update_shopping_cart = "UPDATE Customers SET shopping_cart = ? WHERE customer_ID = ?";
     private static final String get_all_orders = "SELECT * FROM Orders";
     private static final String get_order = "SELECT * FROM Orders WHERE order_ID = ?";
+    private static final String get_product_from_inventory = "SELECT * FROM Inventory WHERE product_ID = ?";
     
     // prepared statements
     private final PreparedStatement addProductStatement;
@@ -90,6 +91,7 @@ public class MySQL_DAO implements DAOInterface
     private final PreparedStatement getCustomerByIDStatement;
     private final PreparedStatement getAllOrdersStatement;
     private final PreparedStatement getOrderStatement;
+    private final PreparedStatement getProductFromInventoryStatement;
     
     private final CallableStatement insert_category_statement;
     private final CallableStatement delete_category_statement;
@@ -128,6 +130,7 @@ public class MySQL_DAO implements DAOInterface
         getCustomerByIDStatement = connection.prepareStatement(getCustomerByID);
         getAllOrdersStatement = connection.prepareStatement(get_all_orders);
         getOrderStatement = connection.prepareStatement(get_order);
+        getProductFromInventoryStatement = connection.prepareStatement(get_product_from_inventory);
         
         insert_category_statement = connection.prepareCall(insert_category_call);
         delete_category_statement = connection.prepareCall(delete_category_call);
@@ -624,6 +627,37 @@ public class MySQL_DAO implements DAOInterface
         return true;
     }
 
+    public  List<Inventory> getProductFromInventory(int productID, boolean only_non_zero_available_amount)
+    {
+    	List<Inventory> products = new ArrayList<>();
+    	
+    	try
+    	{
+    		getProductFromInventoryStatement.setInt(1, productID);
+    		ResultSet results = getProductFromInventoryStatement.executeQuery();
+    		
+    		while(results.next())
+    		{
+    			Inventory temp = new Inventory(results.getInt("inventory_ID"),
+    										   results.getInt("amount"),
+    										   results.getBigDecimal("price"),
+    										   (LocalDateTime)(results.getObject("delivered_at")),
+    										   results.getInt("available_amount"),
+    										   results.getInt("stored_at"),
+    										   results.getBigDecimal("suppliers_price"),
+    										   results.getInt("product_ID"),
+    										   results.getInt("supplier_ID"));
+    			
+    			if(only_non_zero_available_amount == true && temp.available_amount == 0)
+    				continue;
+    			
+    			products.add(temp);
+    		}
+    		return products;
+    	}
+    	catch(SQLException e) {return null;}
+    }
+    
     @Override
     public boolean addOrder(Order order)
     {
