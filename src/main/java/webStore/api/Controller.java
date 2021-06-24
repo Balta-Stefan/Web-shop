@@ -515,14 +515,6 @@ public class Controller
 	
 	public static void main(String[] args)
 	{
-		List<LocalDateTime> list = new ArrayList<>();
-		list.add(LocalDateTime.of(1980, 3, 12, 10, 0));
-		list.add(LocalDateTime.of(1981, 3, 12, 10, 0));
-		list.add(LocalDateTime.of(1960, 3, 12, 10, 0));
-		list.add(LocalDateTime.of(1985, 3, 12, 10, 0));
 		
-		list.sort((a, b) -> b.compareTo(a));
-		
-		System.out.println(list);
 	}
 }

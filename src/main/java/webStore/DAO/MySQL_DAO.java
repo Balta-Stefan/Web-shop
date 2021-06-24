@@ -26,40 +26,41 @@ public class MySQL_DAO implements DAOInterface
     private final Connection connection;
 
     // SQL query constants
-    private static final String addProductQuery = "INSERT INTO Products(name, manufacturer, category, mass, description, thumbnail, warranty_months) VALUES(?, ?, ?, ?, ?, ?, ?)";
-    private static final String addProductPicture = "INSERT INTO Product_pictures(product_ID, picture_URI) VALUES(?, ?)";
+    private static final String addProductQuery = "INSERT INTO Products(name, manufacturer, category, mass, description, thumbnail, warranty_months) VALUES(?, ?, ?, ?, ?, ?, ?)";// done
+    private static final String addProductPicture = "INSERT INTO Product_pictures(product_ID, picture_URI) VALUES(?, ?)"; // done
     //private static final String addProductCategory = "INSERT INTO Product_categories(category_name) VALUES(?)";
-    private static final String addCategoryFilter = "INSERT INTO Category_filters(category_ID, filter) VALUES(?, ?)";
-    private static final String addFilterValues = "INSERT INTO Filter_values(filter_ID, value) VALUES(?, ?)";
-    private static final String addFilterToProduct = "INSERT INTO Product_filter_values(product_ID, filter_value_ID) VALUES(?, ?)";
-    private static final String getWarehouses = "SELECT * FROM Warehouses";
-    private static final String getSuppliers = "SELECT * FROM suppliers";
-    private static final String getInventory = "SELECT * FROM Inventory";
-    private static final String addToInventory = "INSERT INTO Inventory(amount, price, delivered_at, available_amount, stored_at, suppliers_price, product_ID, supplier_ID) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String addOrder = "INSERT INTO Orders(inventory_ID, amount, order_received_at, order_delivered_at, returned_reason, status, handled_by, ordered_by) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String addReturnedReason = "UPDATE Orders SET returned_reason=? WHERE order_ID=?";
-    private static final String getEmployee = "SELECT * FROM Employees WHERE username=?";
-    private static final String getCustomer = "SELECT * FROM Customers WHERE email=?";
-    private static final String getCustomerByID = "SELECT * FROM Customers WHERE customer_ID = ?";
-    private static final String registerCustomer = "INSERT INTO Customers(name, last_name, email, password, phone, shipping_address, city, state, ZIP_code) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String addReview = "INSERT INTO Product_reviews(grade, comment, product_ID, customer) VALUES(?, ?, ?, ?)";
-    private static final String getAllProducts = "SELECT * FROM Products";
-    private static final String addManufacturer = "INSERT INTO Manufacturers(name) VALUES(?)";
-    private static final String getManufacturers = "SELECT * FROM Manufacturers";
-    private static final String getAllOrderStatusTypes = "SELECT * FROM Order_statuses";
-    private static final String insert_category_call = "CALL insert_category(?, ?)";
-    private static final String delete_category_call = "CALL delete_category(?, ?)";
-    private static final String get_main_categories = "SELECT category_ID, category_name FROM Product_categories WHERE parent_category_ID IS NULL";
-    private static final String get_category = "SELECT * FROM Product_categories WHERE category_ID=?";
-    private static final String get_subcategories = "SELECT category_ID, category_name FROM Product_categories WHERE parent_category_ID = ?";
-    private static final String get_filters = "select T.filter, T.filter_ID, T.filter_value_ID, T.value from (select * from (product_categories join category_filters using(category_ID) join filter_values using(filter_ID)) ) AS T where T.category_ID=?";
-    private static final String get_product = "SELECT * FROM Products WHERE product_ID = ?";
-    private static final String get_manufacturer = "SELECT * FROM Manufacturers WHERE manufacturer_ID = ?";
-    private static final String update_shopping_cart = "UPDATE Customers SET shopping_cart = ? WHERE customer_ID = ?";
-    private static final String get_all_orders = "SELECT * FROM Orders";
-    private static final String get_order = "SELECT * FROM Orders WHERE order_ID = ?";
-    private static final String get_product_from_inventory = "SELECT * FROM Inventory WHERE product_ID = ?";
-    private static final String update_product_price = "UPDATE Products SET price = ? WHERE product_ID = ?";
+   
+    private static final String addFilterValues = "INSERT INTO Filter_values(filter_ID, value) VALUES(?, ?)"; // done
+    private static final String addFilterToProduct = "INSERT INTO Product_filter_values(product_ID, filter_value_ID) VALUES(?, ?)"; // done
+    private static final String getWarehouses = "SELECT * FROM Warehouses"; // done
+    private static final String getSuppliers = "SELECT * FROM suppliers"; // done
+    private static final String getInventory = "SELECT * FROM Inventory"; // done
+    private static final String addToInventory = "INSERT INTO Inventory(amount, price, delivered_at, available_amount, stored_at, suppliers_price, product_ID, supplier_ID) VALUES(?, ?, ?, ?, ?, ?, ?, ?)"; // done
+    private static final String addOrder = "INSERT INTO Orders(inventory_ID, amount, order_received_at, order_delivered_at, returned_reason, status, handled_by, ordered_by) VALUES(?, ?, ?, ?, ?, ?, ?, ?)"; // done
+    private static final String addReturnedReason = "UPDATE Orders SET returned_reason=? WHERE order_ID=?"; // done
+    private static final String getEmployee = "SELECT * FROM Employees WHERE username=?"; // done
+    private static final String getCustomer = "SELECT * FROM Customers WHERE email=?"; // done
+    private static final String getCustomerByID = "SELECT * FROM Customers WHERE customer_ID = ?"; // done
+    private static final String registerCustomer = "INSERT INTO Customers(name, last_name, email, password, phone, shipping_address, city, state, ZIP_code) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"; // done
+    private static final String addReview = "INSERT INTO Product_reviews(grade, comment, product_ID, customer) VALUES(?, ?, ?, ?)"; // done
+    private static final String getAllProducts = "SELECT * FROM Products"; // done
+    private static final String addManufacturer = "INSERT INTO Manufacturers(name) VALUES(?)"; // done
+    private static final String getManufacturers = "SELECT * FROM Manufacturers"; // done
+    private static final String getAllOrderStatusTypes = "SELECT * FROM Order_statuses"; // done
+    private static final String insert_category_call = "CALL insert_category(?, ?)"; // done
+    private static final String delete_category_call = "CALL delete_category(?, ?)"; // done
+    private static final String get_main_categories = "SELECT category_ID, category_name FROM Product_categories WHERE parent_category_ID IS NULL"; // done
+    private static final String get_category = "SELECT * FROM Product_categories WHERE category_ID=?"; // done
+    private static final String get_subcategories = "SELECT category_ID, category_name FROM Product_categories WHERE parent_category_ID = ?"; // done
+    private static final String addCategoryFilter = "INSERT INTO Category_filters(category_ID, filter) VALUES(?, ?)"; // done
+    private static final String get_filters = "select T.filter, T.filter_ID, T.filter_value_ID, T.value from (select * from (product_categories join Category_filters using(category_ID) join filter_values using(filter_ID)) ) AS T where T.category_ID=?"; // done
+    private static final String get_product = "SELECT * FROM Products WHERE product_ID = ?"; // done
+    private static final String get_manufacturer = "SELECT * FROM Manufacturers WHERE manufacturer_ID = ?"; // done
+    private static final String update_shopping_cart = "UPDATE Customers SET shopping_cart = ? WHERE customer_ID = ?"; // done
+    private static final String get_all_orders = "SELECT * FROM Orders"; // done
+    private static final String get_order = "SELECT * FROM Orders WHERE order_ID = ?"; // done
+    private static final String get_product_from_inventory = "SELECT * FROM Inventory WHERE product_ID = ?"; // done
+    private static final String update_product_price = "UPDATE Products SET price = ? WHERE product_ID = ?"; // done
     
     
     // prepared statements
