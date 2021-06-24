@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Products` (
   `product_ID` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
   `manufacturer` INT NOT NULL,
-  `price` DECIMAL(10,4) NOT NULL,
+  `price` DECIMAL(10,4) NULL,
   `category` INT NOT NULL,
   `mass` DOUBLE NULL,
   `description` VARCHAR(2000) NULL,
@@ -106,13 +106,14 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `mydb`.`Inventory` (
   `inventory_ID` INT NOT NULL AUTO_INCREMENT,
   `amount` INT NOT NULL,
-  `price` DECIMAL(10,4) NOT NULL,
+  `price` DECIMAL(10,4),
   `delivered_at` DATETIME NOT NULL,
   `available_amount` INT NULL,
   `stored_at` INT NULL,
   `suppliers_price` DECIMAL(10,4) NOT NULL,
   `product_ID` INT NOT NULL,
   `supplier_ID` INT NOT NULL,
+  `expiration_date` DATE NULL,
   PRIMARY KEY (`inventory_ID`),
   INDEX `stored_at_idx` (`stored_at` ASC) VISIBLE,
   INDEX `Inventory_product_ID_idx` (`product_ID` ASC) VISIBLE,
@@ -367,6 +368,14 @@ DELIMITER ;
 DELIMITER $$
 
 USE `mydb`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `mydb`.`Product_categories_BEFORE_INSERT` BEFORE INSERT ON `Product_categories` FOR EACH ROW
+BEGIN
+	IF (NEW.category_ID=NEW.parent_category_ID) THEN
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'You cannot set a category to be its own parent category.';
+    END IF;
+END$$
+
+USE `mydb`$$
 CREATE DEFINER = CURRENT_USER TRIGGER `mydb`.`Orders_BEFORE_INSERT` BEFORE INSERT ON `Orders` FOR EACH ROW
 BEGIN
 	UPDATE mydb.inventory SET available_amount = available_amount - NEW.amount WHERE inventory.inventory_ID=NEW.inventory_ID;
@@ -377,6 +386,12 @@ CREATE DEFINER = CURRENT_USER TRIGGER `mydb`.`Product_filter_values_AFTER_INSERT
 BEGIN
 	UPDATE Filter_values SET total_products=total_products+1
     WHERE Filter_values.filter_value_ID=NEW.filter_value_ID;
+END$$
+
+USE `mydb`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `mydb`.`Inventory_AFTER_INSERT` AFTER INSERT ON `Inventory` FOR EACH ROW
+BEGIN
+	UPDATE Products SET price = NEW.price WHERE Products.product_ID = NEW.product_ID AND Products.price IS NULL; 
 END$$
 
 DELIMITER ;
