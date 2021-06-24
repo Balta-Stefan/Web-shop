@@ -37,6 +37,7 @@ public interface DAOInterface
     FilterValuesOfCategory get_filters(int categoryID);
     Product_category getCategory(int categoryID);
     Product getProduct(int productID);
+    void updatePrice(int product_ID, BigDecimal newPrice);
 
     // warehouse related
     List<Warehouse> getWarehouses();

@@ -14,6 +14,7 @@ import java.util.List;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
+import org.eclipse.yasson.internal.serializer.LocalDateTimeTypeDeserializer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -147,6 +148,16 @@ public class Controller
 		catch(Exception e) {System.out.println("Exception happened: " + e); return null;}
     }
 	
+    public void handleEmptyInventory(List<Inventory> inventories_containing_product)
+    {
+    	// called when a customer empties the stock of an inventory whose price is used in the table Products.The price of the product might need to be changed.
+    	
+    	// for now, the oldest stock will be used
+    	inventories_containing_product.sort((a, b) -> a.delivered_at.compareTo(b.delivered_at));
+    	Inventory target_inventory = inventories_containing_product.get(0);
+    	
+    	DBAccessObject.updatePrice(target_inventory.product_ID, target_inventory.price);
+    }
 
 	@POST
 	@Path("/customers")
@@ -434,15 +445,41 @@ public class Controller
 				continue;
 			}
 			// inventory_status list could be sorted by some criteria.A static Filter could be used.
+			// Application should decide what to do if inventory gets empty for this product.A new price has to be set in the table Products to reflect this change.
 			
+			// find the inventory that has enough stock
+			Inventory inventory_to_take = null;
+			for(Inventory i : inventory_status)
+			{
+				if(i.available_amount >= p.quantity)
+				{
+					inventory_to_take = i;
+					break;
+				}
+			}
+		
+			if(inventory_to_take == null)
+			{
+				// no inventory has enough stock
+				order_statuses.add(new ID_string_pair(p.product_ID, "false"));
+				continue;
+			}
+			
+			inventory_to_take.available_amount -= p.quantity;
 			Order order = new Order(inventory_status.get(0).inventory_ID, p.quantity, LocalDateTime.now(), ordered_status_ID, customerID);
 			Boolean orderStatus = DBAccessObject.addOrder(order);
+			
+			if(inventory_to_take.available_amount == 0)
+			{
+				// this customer has emptied the stock in this inventory.Decide what to do with the price in the table Products.
+				inventory_status.remove(inventory_to_take);
+				handleEmptyInventory(inventory_status);
+			}
 			
 			order_statuses.add(new ID_string_pair(p.product_ID, orderStatus.toString()));
 		}
 		
 		// modify the customer's cart so that it contains only the non successful orders
-		JSONArray newShoppingCart = new JSONArray();
 		JSONArray oldShoppingCart = new JSONArray(purchaser.shopping_cart);
 		
 		for(ID_string_pair pair : order_statuses)
@@ -478,6 +515,14 @@ public class Controller
 	
 	public static void main(String[] args)
 	{
+		List<LocalDateTime> list = new ArrayList<>();
+		list.add(LocalDateTime.of(1980, 3, 12, 10, 0));
+		list.add(LocalDateTime.of(1981, 3, 12, 10, 0));
+		list.add(LocalDateTime.of(1960, 3, 12, 10, 0));
+		list.add(LocalDateTime.of(1985, 3, 12, 10, 0));
 		
+		list.sort((a, b) -> b.compareTo(a));
+		
+		System.out.println(list);
 	}
 }

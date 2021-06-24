@@ -59,6 +59,8 @@ public class MySQL_DAO implements DAOInterface
     private static final String get_all_orders = "SELECT * FROM Orders";
     private static final String get_order = "SELECT * FROM Orders WHERE order_ID = ?";
     private static final String get_product_from_inventory = "SELECT * FROM Inventory WHERE product_ID = ?";
+    private static final String update_product_price = "UPDATE Products SET price = ? WHERE product_ID = ?";
+    
     
     // prepared statements
     private final PreparedStatement addProductStatement;
@@ -92,6 +94,7 @@ public class MySQL_DAO implements DAOInterface
     private final PreparedStatement getAllOrdersStatement;
     private final PreparedStatement getOrderStatement;
     private final PreparedStatement getProductFromInventoryStatement;
+    private final PreparedStatement updateProductPriceStatement;
     
     private final CallableStatement insert_category_statement;
     private final CallableStatement delete_category_statement;
@@ -131,9 +134,22 @@ public class MySQL_DAO implements DAOInterface
         getAllOrdersStatement = connection.prepareStatement(get_all_orders);
         getOrderStatement = connection.prepareStatement(get_order);
         getProductFromInventoryStatement = connection.prepareStatement(get_product_from_inventory);
+        updateProductPriceStatement = connection.prepareStatement(update_product_price);
         
         insert_category_statement = connection.prepareCall(insert_category_call);
         delete_category_statement = connection.prepareCall(delete_category_call);
+    }
+    
+    public void updatePrice(int product_ID, BigDecimal newPrice)
+    {
+    	try
+    	{
+    		updateProductPriceStatement.setBigDecimal(1,  newPrice);
+    		updateProductPriceStatement.setInt(2,  product_ID);
+    		
+    		updateProductPriceStatement.execute();
+    	}
+    	catch(SQLException e) {return;}
     }
     
     public List<Order> getOrders()
@@ -677,7 +693,7 @@ public class MySQL_DAO implements DAOInterface
             addOrderStatement.setInt(8, order.ordered_by);
             addOrderStatement.executeUpdate();
         }
-        catch(SQLException e){System.out.println(e);return false;}
+        catch(SQLException e) {return false;}
 
         return true;
     }
