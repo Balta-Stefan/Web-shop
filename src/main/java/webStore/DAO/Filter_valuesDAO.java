@@ -10,7 +10,7 @@ import webStore.utilities.connectionPool;
 
 
 
-public class Filter_values
+public class Filter_valuesDAO
 {
 	private static final String addFilterValues = "INSERT INTO Filter_values(filter_ID, value) VALUES(?, ?)";
 	private static final String get_filters = "select T.filter, T.filter_ID, T.filter_value_ID, T.value from (select * from (product_categories join Category_filters using(category_ID) join filter_values using(filter_ID)) ) AS T where T.category_ID=?"; // done
@@ -19,7 +19,7 @@ public class Filter_values
 	
 	private connectionPool pool;
 	
-	public Filter_values(connectionPool pool)
+	public Filter_valuesDAO(connectionPool pool)
 	{
 		this.pool = pool;
 	}
