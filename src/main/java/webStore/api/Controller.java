@@ -28,6 +28,17 @@ import webStore.responses.*;
 
 // URL = http://localhost:8080/Web_store/api/v1
 
+/*
+	Format of the customer's shopping cart:
+	[
+		{
+			ID: xxx,
+			quantity: xxx
+		},...
+	]
+*/
+ 
+
 @Path("/v1")
 public class Controller
 {
@@ -267,17 +278,19 @@ public class Controller
 	@PUT
 	@Path("/buy/{ID}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response add_product_to_inventory(@PathParam("ID") int productID, BuyProduct quantity)
+	public Response add_product_to_cart(@PathParam("ID") int productID, BuyProduct quantity)
 	{
-		Customer customer = cookies.get(quantity.customer_email);
-		if(customer == null)
+		Customer purchaser = cookies.get(quantity.customer_email);
+		if(purchaser == null)
 			return Response.status(404).build();
 		
+		Customer customer = customerAccessObject.getCustomer(purchaser.customer_ID);
 		String customerCart = customer.shopping_cart;
 		if(customerCart == null)
 			customerCart = "[]";
 		
 		JSONArray jarray = new JSONArray(customerCart);
+		System.out.println("Customer's cart: " + jarray);
 		
 		String newItem = "{ID: " + productID + ", quantity: " + quantity.quantity + "}";
 		JSONObject obj = new JSONObject(newItem);
@@ -313,7 +326,7 @@ public class Controller
 		return Response.status(200).build();
 	}
 	
-	private List<Product> get_customer_shopping_cart(int customerID)
+	private Customer get_customer_shopping_cart(int customerID)
 	{
 		List<Product> cart = new ArrayList<>();
 		
@@ -332,7 +345,9 @@ public class Controller
 			cart.add(product);
 		}
 		
-		return cart;
+		customer.shopping_cart_list = cart;
+		
+		return customer;
 	}
 	
 	@GET
@@ -358,7 +373,7 @@ public class Controller
 			product.quantity = tmp.getInt("quantity");
 			items_in_cart.add(product);
 		}*/
-		List<Product> items_in_cart = get_customer_shopping_cart(customerID);
+		List<Product> items_in_cart = get_customer_shopping_cart(customerID).shopping_cart_list;
 		if(items_in_cart == null) 
 			return Response.status(404).build();
 		
@@ -402,9 +417,11 @@ public class Controller
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response buyShoppingCart(@PathParam("ID") int customerID)
 	{
+		System.out.println("Purchaser: " + customerID);
 		List<ID_string_pair> order_statuses = new ArrayList<>();
 		
-		List<Product> products = get_customer_shopping_cart(customerID);
+		Customer purchaser = get_customer_shopping_cart(customerID);
+		List<Product> products = purchaser.shopping_cart_list;
 
 		if(products == null)
 			return Response.status(404).build();
@@ -425,16 +442,38 @@ public class Controller
 			order_statuses.add(new ID_string_pair(p.product_ID, orderStatus.toString()));
 		}
 		
-		return Response.status(200).entity(products).build();
+		// modify the customer's cart so that it contains only the non successful orders
+		JSONArray newShoppingCart = new JSONArray();
+		JSONArray oldShoppingCart = new JSONArray(purchaser.shopping_cart);
+		
+		for(ID_string_pair pair : order_statuses)
+		{
+			if(pair.name.equals("true"))
+			{
+				// remove successfully purchased products from the customer's cart
+				
+				for(int i = 0; i < oldShoppingCart.length(); i++)
+				{
+					JSONObject tempObject = oldShoppingCart.getJSONObject(i);
+					if(tempObject.getInt("ID") == pair.ID)
+					{
+						oldShoppingCart.remove(i);
+						break;
+					}
+				}
+				continue;
+			}
+		}
+		
+		purchaser.shopping_cart = oldShoppingCart.toString();
+		if(customerAccessObject.updateShoppingCart(purchaser) == false)
+			return Response.status(400).build();
+		
+		return Response.status(200).entity(order_statuses).build();
 	}
 	
 	public static void main(String[] args)
 	{
-		List<Order> tmp = customerAccessObject.getOrders();
-		for(Order t : tmp)
-			System.out.println(t);
 		
-		Order tmp2 = customerAccessObject.getOrder(1);
-		System.out.println(tmp2);
 	}
 }

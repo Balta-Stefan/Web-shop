@@ -8,7 +8,8 @@ public class Order
     public LocalDateTime order_received_at;
     public LocalDateTime order_delivered_at;
     public String returned_reason;
-    public int status_ID, handled_by, ordered_by;
+    public int status_ID, ordered_by;
+    public Integer handled_by;
     
     public Order(int order_ID, int inventory_ID, int amount, LocalDateTime order_received_at, LocalDateTime order_delivered_at,
 			String returned_reason, int status_ID, int handled_by, int ordered_by)

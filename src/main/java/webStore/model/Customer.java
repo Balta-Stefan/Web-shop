@@ -1,11 +1,15 @@
 package webStore.model;
 
+import java.util.List;
+
 public class Customer
 {
     public int customer_ID;
 
     public String name, last_name, email, password, phone, address, city, state, zip, shopping_cart;
 
+    public List<Product> shopping_cart_list; // convenient when handling unsuccessful product purchases
+    
     public Customer() {}
     
     public Customer(int customer_ID, String name, String last_name, String email, String password, String phone, String shipping_address, String city, String state, String ZIP_code, String shopping_cart)

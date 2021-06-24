@@ -669,12 +669,12 @@ public class MySQL_DAO implements DAOInterface
             addOrderStatement.setObject(4, order.order_delivered_at);
             addOrderStatement.setString(5, order.returned_reason);
             addOrderStatement.setInt(6, order.status_ID);
-            addOrderStatement.setInt(7, order.handled_by);
+            addOrderStatement.setObject(7, order.handled_by, java.sql.Types.INTEGER);
+            
             addOrderStatement.setInt(8, order.ordered_by);
-
             addOrderStatement.executeUpdate();
         }
-        catch(SQLException e){return false;}
+        catch(SQLException e){System.out.println(e);return false;}
 
         return true;
     }

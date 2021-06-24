@@ -253,6 +253,7 @@ div#articles_in_cart_holder{
 	border: solid;
 	display: flex;
 	justify-content: space-between;
+	margin-top: 5px;
 }
 .remove_item_from_shopping_cart_button{
 	background-color: red;

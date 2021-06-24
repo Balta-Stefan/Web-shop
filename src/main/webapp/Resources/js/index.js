@@ -564,6 +564,7 @@ async function remove_item_from_shopping_cart(product_ID)
 	item_wrapper.remove();
 }
 
+
 // not tested
 async function activate_shopping_cart_panel()
 {
@@ -616,6 +617,54 @@ async function activate_shopping_cart_panel()
 	}
 	
 	other_content_panel.style.display = "block";
+	
+	var buy_cart_button = document.getElementById("buy_shopping_cart");
+	buy_cart_button.addEventListener("click", async function() 
+	{
+		/*
+			response is an array of JSON objects of the format
+			{
+				ID: ordered_product_ID,
+				name: true/false - when true, item ordering was successful
+			}
+		*/
+		var URL =  URLprefix + "customers/" + ownID + "/shopping-cart/buy";
+		var response = await make_request(URL, "PUT", JSON_headers, null);
+		if(!response.ok)
+		{
+			alert("Error");
+			return null;
+		}
+		
+		var responseJSON = await response.json();
+		
+		var item_wrappers = document.getElementsByClassName("shopping_cart_item");
+		console.log("purchased");
+		console.log(responseJSON);
+		
+		var itemsToRemove = [];
+		for(var j = 0; j < item_wrappers.length; j++)
+		{
+			for(var i = 0; i < responseJSON.length; i++)
+			{
+				if(item_wrappers[j].id == responseJSON[i].ID)
+				{
+					if(responseJSON[i].name == "true")
+						itemsToRemove.push(responseJSON[i].ID);
+					else
+						item_wrappers[j].style.color = "red";
+					
+					break;
+				}
+			}
+		}
+
+		for(var i = 0; i < itemsToRemove.length; i++)
+		{
+			var item = document.getElementById(itemsToRemove[i]);
+			item.parentNode.removeChild(item);
+		}
+	});
 }
 
 /*for(var i = 0; i < 20; i++)
