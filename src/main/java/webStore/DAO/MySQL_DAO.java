@@ -596,7 +596,8 @@ public class MySQL_DAO implements DAOInterface
                                                results.getInt("stored_at"),
                                                results.getBigDecimal("suppliers_price"),
                                                results.getInt("product_ID"),
-                                               results.getInt("supplier_ID"));
+                                               results.getInt("supplier_ID"),
+                                               results.getDate("expiration_date"));
 
                 list.add(temp);
             }
@@ -646,7 +647,8 @@ public class MySQL_DAO implements DAOInterface
     										   results.getInt("stored_at"),
     										   results.getBigDecimal("suppliers_price"),
     										   results.getInt("product_ID"),
-    										   results.getInt("supplier_ID"));
+    										   results.getInt("supplier_ID"),
+    										   results.getDate("expiration_date"));
     			
     			if(only_non_zero_available_amount == true && temp.available_amount == 0)
     				continue;
