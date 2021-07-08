@@ -18,7 +18,14 @@ import org.eclipse.yasson.internal.serializer.LocalDateTimeTypeDeserializer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import webStore.DAO.CustomerDAO;
+import webStore.DAO.Filter_valuesDAO;
+import webStore.DAO.InventoryDAO;
 import webStore.DAO.MySQL_DAO;
+import webStore.DAO.Order_statusesDAO;
+import webStore.DAO.OrdersDAO;
+import webStore.DAO.ProductDAO;
+import webStore.DAO.Product_categoriesDAO;
 import webStore.model.Customer;
 import webStore.model.Inventory;
 import webStore.model.Order;
@@ -26,6 +33,7 @@ import webStore.model.Order_status;
 import webStore.model.Product;
 import webStore.model.Product_category;
 import webStore.responses.*;
+import webStore.utilities.connectionPool;
 
 // URL = http://localhost:8080/Web_store/api/v1
 
@@ -43,6 +51,8 @@ import webStore.responses.*;
 @Path("/v1")
 public class Controller
 {
+	private static connectionPool pool = new connectionPool();
+	
 	private static MySQL_DAO DBAccessObject;
 	
 	private static String html_file;
@@ -58,14 +68,13 @@ public class Controller
 	
 	static
 	{
-		System.out.println("In static block");
 		try
 		{
 		 	Class.forName("com.mysql.cj.jdbc.Driver"); 
 		    Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/mydb", "root", "sigurnost");
-		    DBAccessObject = new MySQL_DAO(connection);
+		    //DBAccessObject = new MySQL_DAO(connection);
 		    
-		    List<Order_status> tmpList = DBAccessObject.getAllOrderStatusTypes();
+		    List<Order_status> tmpList = new Order_statusesDAO(pool).getAll();
 		    for(Order_status s : tmpList)
 		    {
 		    	if(s.status_type.equals(ordered_status_name))
@@ -148,7 +157,7 @@ public class Controller
 		catch(Exception e) {System.out.println("Exception happened: " + e); return null;}
     }
 	
-    public void handleEmptyInventory(List<Inventory> inventories_containing_product)
+    private void handleEmptyInventory(List<Inventory> inventories_containing_product)
     {
     	// called when a customer empties the stock of an inventory whose price is used in the table Products.The price of the product might need to be changed.
     	
@@ -156,7 +165,9 @@ public class Controller
     	inventories_containing_product.sort((a, b) -> a.delivered_at.compareTo(b.delivered_at));
     	Inventory target_inventory = inventories_containing_product.get(0);
     	
-    	DBAccessObject.updatePrice(target_inventory.product_ID, target_inventory.price);
+    	ProductDAO prodDAO = new ProductDAO(pool);
+    	prodDAO.updateProductPrice(target_inventory.product_ID, target_inventory.price);
+    	//DBAccessObject.updatePrice(target_inventory.product_ID, target_inventory.price);
     }
 
 	@POST
@@ -165,7 +176,8 @@ public class Controller
 	public Response registerUser(Customer registrationInfo)
 	{
 		// only emails are unique so there is no need to check if the user already exists
-		boolean response = DBAccessObject.customerRegistration(registrationInfo);
+		boolean response = new CustomerDAO(pool).add(registrationInfo);
+		//boolean response = DBAccessObject.customerRegistration(registrationInfo);
 		
 		if(response == true)
 			return Response.status(200).build();
@@ -197,7 +209,8 @@ public class Controller
 		}
 		
 		// getCustomer(String email)
-		Customer customerData = DBAccessObject.getCustomer(customer.email);
+		//Customer customerData = DBAccessObject.getCustomer(customer.email);
+		Customer customerData = new CustomerDAO(pool).get(customer.email);
 		if(customerData == null || customer.password.equals(customerData.password) == false)
 			return Response.status(404).build();
 		
@@ -222,7 +235,7 @@ public class Controller
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getMainCategories()
 	{
-		List<ID_string_pair> categories = DBAccessObject.getMainCategories();
+		List<ID_string_pair> categories = new Product_categoriesDAO(pool).getMainCategories();//DBAccessObject.getMainCategories();
 		if(categories == null)
 			return Response.status(400).build();
 		for(ID_string_pair m : categories)
@@ -238,17 +251,20 @@ public class Controller
 	{
 		// first determine whether a category contains any subcategories.If it does, get its subcategories.If it doesn't, get its filters.
 		
-		Product_category category = DBAccessObject.getCategory(categoryID);
+		//Product_category category = DBAccessObject.getCategory(categoryID);
+		Product_categoriesDAO productCatsDAO = new Product_categoriesDAO(pool);
+		Product_category category = productCatsDAO.get(categoryID);
 		if(category.number_of_subcategories == 0)
 		{
 			// get the category's filters
 			Filters filters = new Filters();
-			filters.contents = DBAccessObject.get_filters(categoryID);
+			//filters.contents = DBAccessObject.get_filters(categoryID);
+			filters.contents = new Filter_valuesDAO(pool).get_filters(categoryID);
 			return Response.status(200).entity(filters).build();
 		}
 		
 		// get subcategories
-		List<ID_string_pair> subcategories = DBAccessObject.get_subcategories(categoryID);
+		List<ID_string_pair> subcategories = productCatsDAO.getSubcategories(categoryID);//DBAccessObject.get_subcategories(categoryID);
 		Subcategories subcategoriesWrapper = new Subcategories();
 		subcategoriesWrapper.contents = subcategories;
 		
@@ -264,7 +280,8 @@ public class Controller
 		for(ID_string_pair pair : filter_value_ID_string_pairs)
 			filterIdentifiers.add(pair.ID);
 		
-		List<Product> products = DBAccessObject.getFilteredProducts(filterIdentifiers);
+		//List<Product> products = DBAccessObject.getFilteredProducts(filterIdentifiers);
+		List<Product> products = new ProductDAO(pool).getFilteredProducts(filterIdentifiers);
 		List<TrimmedProduct> responseProducts = new ArrayList<>();
 		
 		for(Product p : products)
@@ -278,7 +295,8 @@ public class Controller
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getProduct(@PathParam("productID") int productID)
 	{
-		Product product = DBAccessObject.getProduct(productID);
+		//Product product = DBAccessObject.getProduct(productID);
+		Product product = new ProductDAO(pool).getProduct(productID);
 		if(product == null)
 			return Response.status(404).build();
 		
@@ -294,7 +312,9 @@ public class Controller
 		if(purchaser == null)
 			return Response.status(404).build();
 		
-		Customer customer = DBAccessObject.getCustomer(purchaser.customer_ID);
+		//Customer customer = DBAccessObject.getCustomer(purchaser.customer_ID);
+		CustomerDAO custDAO = new CustomerDAO(pool);
+		Customer customer = custDAO.get(purchaser.customer_ID);
 		String customerCart = customer.shopping_cart;
 		if(customerCart == null)
 			customerCart = "[]";
@@ -327,7 +347,8 @@ public class Controller
 			jarray.put(obj);
 		
 		customer.shopping_cart = jarray.toString();
-		boolean result = DBAccessObject.updateShoppingCart(customer);
+		//boolean result = DBAccessObject.updateShoppingCart(customer);
+		boolean result = custDAO.updateShoppingCart(customer);
 	
 		if(result == false)
 			return Response.status(404).build();
@@ -338,9 +359,12 @@ public class Controller
 	
 	private Customer get_customer_shopping_cart(int customerID)
 	{
+		ProductDAO prodDAO = new ProductDAO(pool);
+		
 		List<Product> cart = new ArrayList<>();
 		
-		Customer customer = DBAccessObject.getCustomer(customerID);
+		//Customer customer = DBAccessObject.getCustomer(customerID);
+		Customer customer = new CustomerDAO(pool).get(customerID);
 		if(customer == null)
 			return null;
 		
@@ -350,7 +374,8 @@ public class Controller
 		for(int i = 0; i < jarray.length(); i++)
 		{
 			JSONObject tmp = jarray.getJSONObject(i);
-			Product product = DBAccessObject.getProduct(tmp.getInt("ID"));
+			//Product product = DBAccessObject.getProduct(tmp.getInt("ID"));
+			Product product = prodDAO.getProduct(tmp.getInt("ID"));
 			product.quantity = tmp.getInt("quantity");
 			cart.add(product);
 		}
@@ -395,7 +420,9 @@ public class Controller
 	public Response removeProductFromShoppingCart(@PathParam("ID") int customerID, @PathParam("product_ID") int product_ID)
 	{
 		// authentication isn't possible because of the lack of cookies
-		Customer customer = DBAccessObject.getCustomer(customerID);
+		CustomerDAO custDAO = new CustomerDAO(pool);
+		//Customer customer = DBAccessObject.getCustomer(customerID);
+		Customer customer = custDAO.get(customerID);
 		
 		if(customer == null)
 			return Response.status(404).build();
@@ -412,8 +439,10 @@ public class Controller
 				jarray.remove(i);
 				customer.shopping_cart = jarray.toString();
 				
-				if(DBAccessObject.updateShoppingCart(customer) == false)
+				if(custDAO.updateShoppingCart(customer) == false)
 					return Response.status(400).build();
+				//if(DBAccessObject.updateShoppingCart(customer) == false)
+					//return Response.status(400).build();
 				
 				return Response.status(200).build();
 			}
@@ -436,9 +465,12 @@ public class Controller
 		if(products == null)
 			return Response.status(404).build();
 		
+		InventoryDAO invDAO = new InventoryDAO(pool);
+		OrdersDAO ordersDAO = new OrdersDAO(pool);
 		for(Product p : products)
 		{	//int inventory_ID, int amount, LocalDateTime order_received_at, int status_ID, int ordered_by
-			List<Inventory> inventory_status = DBAccessObject.getProductFromInventory(p.product_ID, true);
+			//List<Inventory> inventory_status = DBAccessObject.getProductFromInventory(p.product_ID, true);
+			List<Inventory> inventory_status = invDAO.getProductFromInventory(p.product_ID, true);
 			if(inventory_status == null || inventory_status.size() == 0)
 			{
 				order_statuses.add(new ID_string_pair(p.product_ID, "false"));
@@ -467,7 +499,9 @@ public class Controller
 			
 			inventory_to_take.available_amount -= p.quantity;
 			Order order = new Order(inventory_status.get(0).inventory_ID, p.quantity, LocalDateTime.now(), ordered_status_ID, customerID);
-			Boolean orderStatus = DBAccessObject.addOrder(order);
+			//Boolean orderStatus = DBAccessObject.addOrder(order);
+			Boolean orderStatus = ordersDAO.add(order);
+			
 			
 			if(inventory_to_take.available_amount == 0)
 			{
@@ -502,7 +536,8 @@ public class Controller
 		}
 		
 		purchaser.shopping_cart = oldShoppingCart.toString();
-		if(DBAccessObject.updateShoppingCart(purchaser) == false)
+		CustomerDAO custDAO = new CustomerDAO(pool);
+		if(custDAO.updateShoppingCart(purchaser) == false)
 			return Response.status(400).build();
 		
 		return Response.status(200).entity(order_statuses).build();

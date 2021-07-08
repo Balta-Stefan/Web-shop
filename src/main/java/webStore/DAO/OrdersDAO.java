@@ -106,7 +106,7 @@ public class OrdersDAO
 		return true;
 	}
 	
-	public boolean insert(Order order)
+	public boolean add(Order order)
 	{
 		Connection connection = pool.getConnection();
 		try(PreparedStatement addOrderStatement = connection.prepareStatement(addOrder))

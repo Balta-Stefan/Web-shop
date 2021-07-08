@@ -23,13 +23,14 @@ public class CustomerDAO
 		this.pool = pool;
 	}
 	
-	public boolean updateShoppingCart(String shopping_cart, int customer_ID)
+	//public boolean updateShoppingCart(String shopping_cart, int customer_ID)
+	public boolean updateShoppingCart(Customer customer)
 	{
 		Connection connection = pool.getConnection();
 		try(PreparedStatement s = connection.prepareStatement(update_shopping_cart))
 		{
-    		s.setString(1, shopping_cart);
-    		s.setInt(2,  customer_ID);
+    		s.setString(1, customer.shopping_cart);
+    		s.setInt(2,  customer.customer_ID);
     		s.execute();
 		}
 		catch(SQLException e) {return false;}
