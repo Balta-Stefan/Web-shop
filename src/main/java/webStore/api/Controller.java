@@ -60,7 +60,7 @@ public class Controller
 	private static String javascript_file;
 	
 	private static final String ordered_status_name = "ORDERED";
-	private static int ordered_status_ID; // might cause issues
+	private static int ordered_status_ID; // might cause issues along with ordered_status_name
 	
 	private static String pathPrefix = "D:\\Knjige za fakultet\\3. godina\\6. semestar\\Baze podataka\\Baze podataka - projekat\\Source\\Web-shop\\src\\main\\webapp\\Resources\\";
 	
@@ -68,10 +68,11 @@ public class Controller
 	
 	static
 	{
+		System.out.println("In static BLOCK");
 		try
 		{
 		 	Class.forName("com.mysql.cj.jdbc.Driver"); 
-		    Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/mydb", "root", "sigurnost");
+		    //Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/mydb", "root", "sigurnost");
 		    //DBAccessObject = new MySQL_DAO(connection);
 		    
 		    List<Order_status> tmpList = new Order_statusesDAO(pool).getAll();

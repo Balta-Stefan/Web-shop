@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import webStore.model.Manufacturer;
 import webStore.model.Product;
 import webStore.utilities.connectionPool;
 
@@ -98,16 +99,20 @@ public class ProductDAO
 			try(ResultSet result = s.executeQuery())
 			{
 				result.next();
+				ManufacturersDAO manDAO = new ManufacturersDAO(pool);
+				Manufacturer manufacturer = manDAO.get(result.getInt("manufacturer"));
+				//int product_ID, String name, int manufacturer_ID, BigDecimal price, int category_ID, double mass, String description, String thumbnail, byte warranty_months, String manufacturer)
 				
 				product = new Product(result.getInt("product_ID"),
 						 result.getString("name"),
-						 result.getInt("manufacturer"),
+						 manufacturer.manufacturer_ID,
 						 result.getBigDecimal("price"),
 						 result.getInt("category"),
 						 result.getDouble("mass"),
 						 result.getString("description"),
 						 result.getString("thumbnail"),
-						 result.getByte("warranty_months"));
+						 result.getByte("warranty_months"),
+						 manufacturer.name);
 			}
 		}
 		catch(SQLException e) {return null;}
