@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import webStore.model.Category_filter;
-import webStore.responses.ID_string_pair;
 import webStore.utilities.connectionPool;
 
 

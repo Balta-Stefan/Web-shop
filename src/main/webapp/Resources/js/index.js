@@ -4,6 +4,20 @@
 	These elements will be inserted as HTML code where buttons will contain onaction attribute.
 */
 
+const pageType =
+{
+	CATEGORIES: 1,
+	FILTERS: 2,
+	PRODUCTS_LIST: 3,
+	PRODUCT_INFO: 4
+};
+Object.freeze(pageType);
+const currentPageType = null;
+
+const filter_wrapper_data_attribute_name = "data-paragraph_ID";
+const category_data_ID = "data-category_ID";
+const category_data_name = "data-category_name";
+
 const currencySymbol = " KM";
 const massUnit = " kg";
 const URLprefix = "v1/";
@@ -28,10 +42,44 @@ var other_content_panel = document.getElementById("other_content");
 shopping_cart_button.addEventListener("click", activate_shopping_cart_panel);
 login_button.addEventListener("click", activate_login_panel);
 
+function reset_categories()
+{
+	
+}
 
+function reset_filters()
+{
+	
+}
 
+function reset_products_list()
+{
+	
+}
 
+function reset_product_info()
+{
+	
+}
 
+function switch_to_last_page()
+{
+	switch(currentPageType)
+	{
+		case pageType.CATEGORIES:
+			reset_categories();
+			break;
+		case pageType.FILTERS:
+			reset_filters();
+			break;
+		case pageType.PRODUCTS_LIST:
+			reset_products_list();
+			break;
+		case pageType.PRODUCT_INFO:
+			reset_product_info()
+			break;
+	}
+}
 
 async function make_request(URL, method, headers, body_content)
 {
@@ -278,28 +326,33 @@ function addCategories(categories)
 		let tempName = categories[i].name
 		
 		// Create anchor element.
-		var a = document.createElement('p'); 
+		var element = document.createElement('p'); 
 		  
 		// Create the text node for anchor element.
 		var link = document.createTextNode(tempName);
 		  
 		// Append the text node to anchor element.
-		a.appendChild(link); 
+		element.appendChild(link); 
 		  
 		// Set the title.
-		a.title = tempName; 
+		element.title = tempName; 
+		
+		element.setAttribute(category_data_ID, tempID);
+		element.setAttribute(category_data_name, tempName);
+		
+		element.className = "category_class"
 		  
 		// Set the href property.
 		//a.href = "#"; 
 		  
 		// Append the anchor element to the body.
-		sidePanel.appendChild(a); 
+		sidePanel.appendChild(element); 
 		
 		
-		a.addEventListener("click", function()
+		/*element.addEventListener("click", function()
 		{
 			selectCategory(tempID, tempName);
-		});
+		});*/
 	}
 }
 
@@ -345,12 +398,31 @@ function addFilters(filters)
 			3)for every filter type, activate as many filter_value_template templates as needed (they hold checkbox and filter value)
 	*/
 	
+	const filter_values_wrapper_IDprefix = "filter-values-wrapper-";
+	const filter_link_ID_prefix = "filter-link-";
+	const filter_label_ID_prefix = "filter-label-";
+	
+	
 	var receivedFilters = filters.categoryFilters;
 	
 	// remove all the elements from the side panel
 	removeChildren(sidePanel);
 	activate_template(sidePanel, "filters_template");
 	var categoryButtonWrapper = document.getElementById("category_button_wrapper");
+	
+	// when selecting a filter paragraph, event will bubble to this event listener
+	/*categoryButtonWrapper.addEventListener("click", function(e)
+	{
+		if(e.target && e.target.matches("p.filter_paragraph_class"))
+		{
+			console.log(e.target);
+			var selectedID = e.target.getAttribute(filter_wrapper_data_attribute_name);
+			console.log("selected ID: " + selectedID);
+			hide_or_display_category(selectedID);
+			
+			e.stopPropagation();
+		}
+	});*/
 	
 	
 	var single_filter_template = document.getElementById("single_filter_template");
@@ -362,7 +434,7 @@ function addFilters(filters)
 		var single_filter_template_clone = document.importNode(single_filter_template.content, true);
 		categoryButtonWrapper.appendChild(single_filter_template_clone);
 		var filter_link = document.getElementById("filter_link");
-		filter_link.id = "filter-link-" + receivedFilters[i].filter_ID;
+		filter_link.id = filter_link_ID_prefix + receivedFilters[i].filter_ID;
 		filter_link.innerHTML = receivedFilters[i].filter_type_name;
 		
 		var filter_values_div = document.getElementById("filter_values");
@@ -381,16 +453,18 @@ function addFilters(filters)
 			
 			var filterLabel = document.getElementById("filter_checkbox_label");
 			filterLabel.htmlFor  = checkbox.id;
-			filterLabel.id = "filter-label-" + filter_values[j].ID;
+			filterLabel.id = filter_label_ID_prefix + filter_values[j].ID;
 			filterLabel.innerHTML = filter_values[j].name;
 		}
 		
-		filter_values_div.id =  "filter-values-wrapper-" + receivedFilters[i].filter_ID;
+		filter_values_div.id =  filter_values_wrapper_IDprefix + receivedFilters[i].filter_ID;
 		let tempID = filter_values_div.id;
-		filter_link.addEventListener("click", function()
+		console.log("My ID is: " + tempID);
+		filter_link.setAttribute(filter_wrapper_data_attribute_name, tempID);
+		/*filter_link.addEventListener("click", function()
 		{
 			hide_or_display_category(tempID);
-		});
+		});*/
 		
 		//link.addEventListener("click", function(){hide_or_display_category(tmp);}, false);
 	}
@@ -518,6 +592,40 @@ function activate_login_panel()
 		
 		login_button.style.display = "none";
 		shopping_cart_button.style.display = "block";
+		
+		// register event listeners (all the events will bubble up to them and they will determine if they should handle the event)
+		
+		// for showing/hiding filter values
+		sidePanel.addEventListener("click", function(e)
+		{
+			console.log("Filter handler");
+			if(e.target && e.target.matches("p.filter_paragraph_class"))
+			{
+				console.log(e.target);
+				var selectedID = e.target.getAttribute(filter_wrapper_data_attribute_name);
+				console.log("selected ID: " + selectedID);
+				hide_or_display_category(selectedID);
+				
+				e.stopPropagation();
+			}
+		});
+		
+		// for obtaining subcategories or filters of a clicked category
+		sidePanel.addEventListener("click", function(e)
+		{
+			console.log("category handler");
+			if(e.target && e.target.matches("p.category_class"))
+			{
+				var categoryID = e.target.getAttribute(category_data_ID);
+				var categoryName = e.target.getAttribute(category_data_name);
+				
+				selectCategory(categoryID, categoryName);
+				
+				e.stopPropagation();
+			}
+		});
+		
+		
 	});
 
 	var register_button = document.getElementById("register_button");

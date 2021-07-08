@@ -4,8 +4,6 @@ package webStore.api;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,14 +12,12 @@ import java.util.List;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
-import org.eclipse.yasson.internal.serializer.LocalDateTimeTypeDeserializer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import webStore.DAO.CustomerDAO;
 import webStore.DAO.Filter_valuesDAO;
 import webStore.DAO.InventoryDAO;
-import webStore.DAO.MySQL_DAO;
 import webStore.DAO.Order_statusesDAO;
 import webStore.DAO.OrdersDAO;
 import webStore.DAO.ProductDAO;
@@ -53,8 +49,6 @@ public class Controller
 {
 	private static connectionPool pool = new connectionPool();
 	
-	private static MySQL_DAO DBAccessObject;
-	
 	private static String html_file;
 	private static String css_file;
 	private static String javascript_file;
@@ -68,7 +62,6 @@ public class Controller
 	
 	static
 	{
-		System.out.println("In static BLOCK");
 		try
 		{
 		 	Class.forName("com.mysql.cj.jdbc.Driver"); 
@@ -96,29 +89,6 @@ public class Controller
 		}
 		catch(Exception e) {System.out.println("Exception happened: " + e);}*/
 	}
-	
-	/*
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public ArrayList<Student> getStudents()
-	{
-		return students;
-	}*/
-	
-	/*
-	@GET
-	@Path("/{id}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getStudent(@PathParam("id") int id)
-	{
-		Student toReturn = findStudent(id);
-
-		
-		if(toReturn != null)
-			return Response.status(200).entity(toReturn).build();
-		else return Response.status(404).build();
-	}*/
-	
 	
     @GET
     @Produces("text/html")
