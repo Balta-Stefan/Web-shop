@@ -2,6 +2,7 @@ package webStore.api;
 
 
 
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import webStore.DAO.CustomerDAO;
+import webStore.DAO.EmployeesDAO;
 import webStore.DAO.Filter_valuesDAO;
 import webStore.DAO.InventoryDAO;
 import webStore.DAO.Order_statusesDAO;
@@ -23,6 +25,7 @@ import webStore.DAO.OrdersDAO;
 import webStore.DAO.ProductDAO;
 import webStore.DAO.Product_categoriesDAO;
 import webStore.model.Customer;
+import webStore.model.Employee;
 import webStore.model.Inventory;
 import webStore.model.Order;
 import webStore.model.Order_status;
@@ -56,7 +59,7 @@ public class Controller
 	private static final String ordered_status_name = "ORDERED";
 	private static int ordered_status_ID; // might cause issues along with ordered_status_name
 	
-	private static String pathPrefix = "D:\\Knjige za fakultet\\3. godina\\6. semestar\\Baze podataka\\Baze podataka - projekat\\Source\\Web-shop\\src\\main\\webapp\\Resources\\Customers";
+	private static String pathPrefix = "D:\\Knjige za fakultet\\3. godina\\6. semestar\\Baze podataka\\Baze podataka - projekat\\Source\\Web-shop\\src\\main\\webapp\\Resources";
 	
 	private static HashMap<String, Customer> cookies = new HashMap<>(); // maps email to a customer
 	
@@ -99,45 +102,205 @@ public class Controller
 		catch(Exception e) {return null;}
 	}
 	
-    @GET
-    @Produces("text/html")
-    public Response getHtml()
-    {
-     	String file = readFile("\\index.html");
+	@GET
+	@Path("/employees/orders")
+	@Produces("text/html")
+	public Response getEmployeeOrdersPanel()
+	{
+		String employeePanel = readFile("\\Employees\\employee orders.html");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	@GET
+	@Path("/employees/css/employee orders.css")
+	@Produces("text/css")
+	public Response getEmployeeOrdersCSS()
+	{
+		String employeePanel = readFile("\\Employees\\css\\employee orders.css");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	
+	@GET
+	@Path("/employees/suppliers")
+	@Produces("text/html")
+	public Response getEmployeeSuppliersPanel()
+	{
+		String employeePanel = readFile("\\Employees\\employee suppliers.html");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	@GET
+	@Path("/employees/css/employee suppliers.css")
+	@Produces("text/css")
+	public Response getEmployeeSuppliersCSS()
+	{
+		String employeePanel = readFile("\\Employees\\css\\employee suppliers.css");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	
+	@GET
+	@Path("/employees/warehouses")
+	@Produces("text/html")
+	public Response getEmployeeWarehousesPanel()
+	{
+		String employeePanel = readFile("\\Employees\\employee warehouses.html");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	@GET
+	@Path("/employees/css/employee warehouses.css")
+	@Produces("text/css")
+	public Response getEmployeeWarehousesCSS()
+	{
+		String employeePanel = readFile("\\Employees\\css\\employee warehouses.css");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	
+	@GET
+	@Path("/employees/products")
+	@Produces("text/html")
+	public Response getEmployeeProductsPanel()
+	{
+		String employeePanel = readFile("\\Employees\\employee products.html");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	@GET
+	@Path("/employees/css/employee products.css")
+	@Produces("text/css")
+	public Response getEmployeeProductsCSS()
+	{
+		String employeePanel = readFile("\\Employees\\css\\employee products.css");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+
+	@GET
+	@Path("/employees/inventory")
+	@Produces("text/html")
+	public Response getEmployeesInventory()
+	{
+		String employeePanel = readFile("\\Employees\\employee inventory.html");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	@GET
+	@Path("/employees/css/employee inventory.css")
+	@Produces("text/css")
+	public Response getEmployeeInventoryCSS()
+	{
+		String employeePanel = readFile("\\Employees\\css\\employee inventory.css");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	
+	@GET
+	@Path("/employees/panel")
+	@Produces("text/html")
+	public Response getEmployeeIndex()
+	{
+		String employeePanel = readFile("\\Employees\\employee index.html");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	@GET
+	@Path("/employees/css/employee index.css")
+	@Produces("text/css")
+	public Response getEmployeeIndexCSS()
+	{
+		String employeePanel = readFile("\\Employees\\css\\employee index.css");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	
+	@POST
+	@Path("/employees/login")
+	public Response employeeLogin(@FormParam("username") String username, @FormParam("password") String password)
+	{
+		Employee employee = new EmployeesDAO(pool).get(username);
+		if(employee == null || password.equals(employee.password) == false)
+			return Response.status(403).build();
+		
+		// handle sessions - to do
+		
+		URI getEmployeePanelURL = URI.create("v1/employees/panel");
+		return Response.seeOther(getEmployeePanelURL).build();
+	}
+	
+	@GET
+	@Path("/employees")
+	@Produces("text/html")
+	public Response getEmployeeLoginPanel()
+	{
+		String file = readFile("\\Employees\\employee login.html");
     	if(file == null)
     		return Response.status(500).build();
     	return Response.status(200).entity(file).build();
-    	/*try
-		{
-			html_file = new String(Files.readAllBytes(Paths.get(pathPrefix + "index.html")));
-			return html_file;
-		}
-		catch(Exception e) {System.out.println("Exception happened: " + e); return null;}*/
+	}
+    @GET
+    @Path("/css/employee login.css")
+    @Produces("text/css")
+    public Response getEmployeeLoginCSS()
+    {
+     	String file = readFile("\\Employees\\css\\employee login.css");
+    	if(file == null)
+    		return Response.status(500).build();
+    	return Response.status(200).entity(file).build();
     }
+
     
+    @GET
+    @Produces("text/html")
+    public Response getCustomerIndex()
+    {
+     	String file = readFile("\\Customers\\index.html");
+    	if(file == null)
+    		return Response.status(500).build();
+    	return Response.status(200).entity(file).build();
+    }
     @GET
     @Path("/css/index.css")
     @Produces("text/css")
-    public Response getCSS()
+    public Response getCustomerCSS()
     {
-     	String file = readFile("\\css\\index.css");
+     	String file = readFile("\\Customers\\css\\index.css");
     	if(file == null)
     		return Response.status(500).build();
     	return Response.status(200).entity(file).build();
-    	/*try
-		{
-			css_file = new String(Files.readAllBytes(Paths.get(pathPrefix + "css\\index.css")));
-			return css_file;
-		}
-		catch(Exception e) {System.out.println("Exception happened: " + e); return null;}*/
     }
-    
     @GET
     @Path("/js/index.js")
     @Produces("text/javascript")
-    public Response getJS()
+    public Response getCustomerJS()
     {
-    	String file = readFile("\\js\\index.js");
+    	String file = readFile("\\Customers\\js\\index.js");
     	if(file == null)
     		return Response.status(500).build();
     	return Response.status(200).entity(file).build();
@@ -149,6 +312,8 @@ public class Controller
 		catch(Exception e) {System.out.println("Exception happened: " + e); return null;}*/
     }
 	
+    
+    
     private void handleEmptyInventory(List<Inventory> inventories_containing_product)
     {
     	// called when a customer empties the stock of an inventory whose price is used in the table Products.The price of the product might need to be changed.

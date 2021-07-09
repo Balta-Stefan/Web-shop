@@ -1,0 +1,81 @@
+html{
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+
+body{
+	height: 100%;
+	width: 100%;
+	
+	font-size: 1.1 rem;
+	margin: 0;
+	padding: 0;
+}
+
+header {
+	display: flex;
+	justify-content: space-between;
+	
+	background-color: #333;
+	width: 100%; /* Full width */
+	height: 3rem;
+}
+
+div#sidenav_and_main_content_wrapper{
+	width: 100%;
+	height: 95%;
+	display: flex;
+}
+
+div#main_content{
+	height: 100%;
+	width: 83%;
+	background-color: #dedede;/*#284555;*/
+	overflow: auto;
+}
+
+
+div#sidenav{
+	width: 17%; /* Set the width of the sidebar */
+	height: 100%;
+	background-color: #111; /* Black */
+	overflow: auto;
+}
+
+/* Login panel */
+
+.login_register_form{
+	padding-top: 25px;
+	width: 100%;
+	height: 100%;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.login_input{
+	width: 50%;
+	height: 2rem;
+	border: 1px solid #ccc;
+	box-sizing: border-box;
+	display: block;
+}
+.login_buttons{
+	border: none;
+	cursor: pointer;
+	color: white;
+	height: 2rem;
+	width: 50%;
+	font-weight: bold;
+}
+.login_buttons:hover{
+	opacity: 0.8;
+}
+button#login_button{
+	background-color: #04AA6D;
+	margin-top: 25px;
+}

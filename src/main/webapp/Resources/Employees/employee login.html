@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Employee login</title>
+		<link href="css/employee login.css" type="text/css" rel="stylesheet" />
+		<!-- <script src="v1/js/employee login.js" type="text/javascript" defer></script> -->
+		
+		<meta charset="UTF-8">
+		<meta name="author" content="Balta Stefan">
+		<meta name="viewport" content="width=device-width, initial-scale=1"> <!-- media queries don't work without this line-->
+	</head>
+	
+	<body>
+		<header>
+			
+		</header>
+		
+		<div id="sidenav_and_main_content_wrapper">
+			<div id="sidenav">
+
+			</div>
+			
+			<div id="main_content">
+				<form class="login_register_form" id="login_form"action="/Web_store/api/v1/employees/login" method="post">
+					<label for="username"><b>Username</b></label>
+					<input class="login_input" type="text" name="username" required oninvalid="this.setCustomValidity('Enter username')" oninput="setCustomValidity('')">
+					
+					<label for="password"><b>Password</b></label>
+					<input class="login_input" type="password" name="password" required oninvalid="this.setCustomValidity('Enter password')" oninput="setCustomValidity('')">
+					
+					<button class="login_buttons" type="submit" id="login_button">Login</button>
+				</form>
+			</div>
+		</div>
+	</body>
+</html>
+
+
+
+
