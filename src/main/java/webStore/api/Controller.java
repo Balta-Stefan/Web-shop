@@ -56,7 +56,7 @@ public class Controller
 	private static final String ordered_status_name = "ORDERED";
 	private static int ordered_status_ID; // might cause issues along with ordered_status_name
 	
-	private static String pathPrefix = "D:\\Knjige za fakultet\\3. godina\\6. semestar\\Baze podataka\\Baze podataka - projekat\\Source\\Web-shop\\src\\main\\webapp\\Resources\\";
+	private static String pathPrefix = "D:\\Knjige za fakultet\\3. godina\\6. semestar\\Baze podataka\\Baze podataka - projekat\\Source\\Web-shop\\src\\main\\webapp\\Resources\\Customers";
 	
 	private static HashMap<String, Customer> cookies = new HashMap<>(); // maps email to a customer
 	
@@ -103,7 +103,7 @@ public class Controller
     @Produces("text/html")
     public Response getHtml()
     {
-     	String file = readFile("index.html");
+     	String file = readFile("\\index.html");
     	if(file == null)
     		return Response.status(500).build();
     	return Response.status(200).entity(file).build();
@@ -120,7 +120,7 @@ public class Controller
     @Produces("text/css")
     public Response getCSS()
     {
-     	String file = readFile("css\\index.css");
+     	String file = readFile("\\css\\index.css");
     	if(file == null)
     		return Response.status(500).build();
     	return Response.status(200).entity(file).build();
@@ -137,7 +137,7 @@ public class Controller
     @Produces("text/javascript")
     public Response getJS()
     {
-    	String file = readFile("js\\index.js");
+    	String file = readFile("\\js\\index.js");
     	if(file == null)
     		return Response.status(500).build();
     	return Response.status(200).entity(file).build();
