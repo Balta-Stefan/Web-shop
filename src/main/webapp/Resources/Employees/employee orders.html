@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Employee panel</title>
+		<title>Employee orders</title>
 		<link href="css/employee index.css" type="text/css" rel="stylesheet" />
+		<link href="css/employee orders.css" type="text/css" rel="stylesheet" />
+		
+		<script src="js/utilities.js" type="text/javascript" defer></script> 
+		<script src="js/employee orders.js" type="text/javascript" defer></script> 
 		<!-- <script src="v1/js/employee login.js" type="text/javascript" defer></script> -->
 		
 		<meta charset="UTF-8">
@@ -17,7 +21,7 @@
 		
 		<div id="sidenav_and_main_content_wrapper">
 			<div id="sidenav">
-				<a href="./orders-panel">Orders</a>
+				<a href="#">Orders</a>
 				<a href="./suppliers">Suppliers</a>
 				<a href="./warehouses">Warehouses</a>
 				<a href="./products">Products</a>
@@ -26,7 +30,7 @@
 			</div>
 			
 			<div id="main_content">
-				
+				<select id="orders_select" size="5"></select>
 			</div>
 		</div>
 	</body>

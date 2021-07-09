@@ -102,8 +102,22 @@ public class Controller
 		catch(Exception e) {return null;}
 	}
 	
+	// employee related
 	@GET
-	@Path("/employees/orders")
+	@Path("/employees/js/utilities.js")
+	@Produces("text/javascript")
+	public Response getEmployeeUtilitiesJS()
+	{
+		String employeePanel = readFile("\\Employees\\js\\utilities.js");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	
+	
+	@GET
+	@Path("/employees/orders-panel")
 	@Produces("text/html")
 	public Response getEmployeeOrdersPanel()
 	{
@@ -119,6 +133,17 @@ public class Controller
 	public Response getEmployeeOrdersCSS()
 	{
 		String employeePanel = readFile("\\Employees\\css\\employee orders.css");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	@GET
+	@Path("/employees/js/employee orders.js")
+	@Produces("text/javascript")
+	public Response getEmployeeOrdersJS()
+	{
+		String employeePanel = readFile("\\Employees\\js\\employee orders.js");
 		if(employeePanel == null)
 			return Response.status(500).build();
 		
@@ -218,6 +243,30 @@ public class Controller
 	}
 	
 	@GET
+	@Path("/employees/categories_and_filters")
+	@Produces("text/html")
+	public Response getEmployeesCategoriesAndFilters()
+	{
+		String employeePanel = readFile("\\Employees\\employee categories and filters.html");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	@GET
+	@Path("/employees/css/employee categories_and_filters.css")
+	@Produces("text/css")
+	public Response getEmployeesCategoriesAndFiltersCSS()
+	{
+		String employeePanel = readFile("\\Employees\\css\\employee categories and filters.css");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	
+	
+	@GET
 	@Path("/employees/panel")
 	@Produces("text/html")
 	public Response getEmployeeIndex()
@@ -275,6 +324,21 @@ public class Controller
     	return Response.status(200).entity(file).build();
     }
 
+
+    @GET
+    @Path("/employees/orders")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getOrders()
+    {
+    	List<Order> orders = new OrdersDAO(pool).getAll();
+    	
+    	if(orders == null)
+    		return Response.status(500).build();
+    	
+    	return Response.status(200).entity(orders).build();
+    }
+    
+    // customer related
     
     @GET
     @Produces("text/html")
@@ -312,7 +376,6 @@ public class Controller
 		catch(Exception e) {System.out.println("Exception happened: " + e); return null;}*/
     }
 	
-    
     
     private void handleEmptyInventory(List<Inventory> inventories_containing_product)
     {
