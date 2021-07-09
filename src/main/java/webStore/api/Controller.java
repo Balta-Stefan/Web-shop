@@ -90,42 +90,63 @@ public class Controller
 		catch(Exception e) {System.out.println("Exception happened: " + e);}*/
 	}
 	
+	private String readFile(String relativePath)
+	{
+		try
+		{
+			return new String(Files.readAllBytes(Paths.get(pathPrefix + relativePath)));
+		}
+		catch(Exception e) {return null;}
+	}
+	
     @GET
     @Produces("text/html")
-    public String getHtml()
+    public Response getHtml()
     {
-    	try
+     	String file = readFile("index.html");
+    	if(file == null)
+    		return Response.status(500).build();
+    	return Response.status(200).entity(file).build();
+    	/*try
 		{
 			html_file = new String(Files.readAllBytes(Paths.get(pathPrefix + "index.html")));
 			return html_file;
 		}
-		catch(Exception e) {System.out.println("Exception happened: " + e); return null;}
+		catch(Exception e) {System.out.println("Exception happened: " + e); return null;}*/
     }
     
     @GET
     @Path("/css/index.css")
     @Produces("text/css")
-    public String getCSS()
+    public Response getCSS()
     {
-    	try
+     	String file = readFile("css\\index.css");
+    	if(file == null)
+    		return Response.status(500).build();
+    	return Response.status(200).entity(file).build();
+    	/*try
 		{
 			css_file = new String(Files.readAllBytes(Paths.get(pathPrefix + "css\\index.css")));
 			return css_file;
 		}
-		catch(Exception e) {System.out.println("Exception happened: " + e); return null;}
+		catch(Exception e) {System.out.println("Exception happened: " + e); return null;}*/
     }
     
     @GET
     @Path("/js/index.js")
     @Produces("text/javascript")
-    public String getJS()
+    public Response getJS()
     {
-    	try
+    	String file = readFile("js\\index.js");
+    	if(file == null)
+    		return Response.status(500).build();
+    	return Response.status(200).entity(file).build();
+    	/*try
 		{
 			javascript_file = new String(Files.readAllBytes(Paths.get(pathPrefix + "js\\index.js")));
 			return javascript_file;
 		}
-		catch(Exception e) {System.out.println("Exception happened: " + e); return null;}
+		catch(Exception e) {System.out.println("Exception happened: " + e); return null;}*/
     }
 	
     private void handleEmptyInventory(List<Inventory> inventories_containing_product)
