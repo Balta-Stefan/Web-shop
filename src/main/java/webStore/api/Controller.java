@@ -175,7 +175,7 @@ public class Controller
 		{
 			// check if the user is already logged in
 			Customer exists = cookies.get(customer.email);
-			if(exists != null)
+			if(exists != null && exists.password.equals(customer.password))
 				return Response.status(200).entity(new TempClass(exists.customer_ID)).build();
 		}
 		

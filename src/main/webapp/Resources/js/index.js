@@ -4,19 +4,64 @@
 	These elements will be inserted as HTML code where buttons will contain onaction attribute.
 */
 
+
+/*
+	Categories history object format:
+	{
+		type: pageType.CATEGORIES,
+		content:
+		{
+			// copy of the DOM subtree that contains categories
+		}
+	}
+	
+	Filter values history object format:
+	{
+		type: pageType.FILTERS,
+		content:
+		{
+			DOM_copy: xxx, 
+			selected_filters: // list of IDs that correspond to selected checkboxes, this will have to be checked and manually selected in the interface
+		}
+	}
+	
+	Products list history object format:
+	{
+		type: pageType.PRODUCTS_LIST,
+		content:
+		{
+			products_list_DOM_copy: xxx, // copy of the DOM tree that contains all the products
+			filters_DOM_copy, 
+			selected_filters,
+		}
+	}
+	
+	Product info history object format:
+	{
+		type: pageType.PRODUCT_INFO,
+		content:
+		{
+			// copy of the DOM tree that contains the product info
+		}
+	}
+*/
+
 const pageType =
 {
 	CATEGORIES: 1,
 	FILTERS: 2,
 	PRODUCTS_LIST: 3,
-	PRODUCT_INFO: 4
+	PRODUCT_INFO: 4,
+	SHOPPING_CART: 5
 };
 Object.freeze(pageType);
-const currentPageType = null;
+var currentPageType = null;
 
 const filter_wrapper_data_attribute_name = "data-paragraph_ID";
 const category_data_ID = "data-category_ID";
 const category_data_name = "data-category_name";
+const product_data_ID = "data-product-ID";
+const shopping_cart_data_remove_ID = "data-product-cart-removal-button-ID";
 
 const currencySymbol = " KM";
 const massUnit = " kg";
@@ -31,54 +76,130 @@ const JSON_headers =
 var my_email = null;
 var ownID = null;
 
+//var main_content = document.getElementById("sidenav_and_main_content_wrapper");
+
 var sidePanel = document.getElementById("sidenav");
-var product_list = document.getElementById("product_list");
+var products_list = document.getElementById("product_list");
 var login_button = document.getElementById("login_button");
 var shopping_cart_button = document.getElementById("shopping_cart_button");
-var articles_panel = document.getElementById("products_list");
+var articles_panel = document.getElementById("products_list_wrapper");
 var other_content_panel = document.getElementById("other_content");
+var main_content_div = document.getElementById("main_content");
 
 
 shopping_cart_button.addEventListener("click", activate_shopping_cart_panel);
 login_button.addEventListener("click", activate_login_panel);
 
-function reset_categories()
+// handler for the back button in the browser
+window.onpopstate = function(event)
 {
-	
+	switch_to_last_page(event.state);
+}
+function check_filter_checkboxes(list_of_checked_IDs)
+{
+	for(var i = 0; i < list_of_checked_IDs.length; i++)
+	{
+		var tempCheckbox = document.getElementById(list_of_checked_IDs[i]);
+		tempCheckbox.checked = true;
+	}
 }
 
-function reset_filters()
+
+function reset_categories(content)
 {
-	
+	sidePanel.innerHTML = content;
 }
 
-function reset_products_list()
+function reset_filters(content)
 {
-	
+	sidePanel.innerHTML = content.DOM_copy;
+	check_filter_checkboxes(content.selected_filters);
 }
 
-function reset_product_info()
+function reset_products_list(content)
 {
-	
+	console.log("am resetting products list");
+	products_list.innerHTML = content.products_list_DOM_copy;
+	sidePanel.innerHTML = content.filters_DOM_copy;
+	check_filter_checkboxes(content.selected_filters);
 }
 
-function switch_to_last_page()
+function reset_product_info(content)
 {
-	switch(currentPageType)
+	products_list.innerHTML = content;
+}
+
+function reset_shopping_cart(content)
+{
+	other_content_panel.innerHTML = content;
+}
+
+function switch_to_last_page(stateObject)
+{
+	if(stateObject == null)
+		return;
+	
+	// clear wrappers
+	removeChildren(sidePanel);
+	removeChildren(other_content_panel);
+	removeChildren(products_list);
+	
+	console.log("going back, the object is: ");
+	console.log(stateObject);
+	
+	switch(stateObject.type)
 	{
 		case pageType.CATEGORIES:
-			reset_categories();
+			reset_categories(stateObject.contents);
 			break;
 		case pageType.FILTERS:
-			reset_filters();
+			reset_filters(stateObject.contents);
 			break;
 		case pageType.PRODUCTS_LIST:
-			reset_products_list();
+			reset_products_list(stateObject.contents);
 			break;
 		case pageType.PRODUCT_INFO:
-			reset_product_info()
+			reset_product_info(stateObject.contents)
+			break;
+		case pageType.SHOPPING_CART:
+			reset_shopping_cart(stateObject.contents);
 			break;
 	}
+	currentPageType = stateObject.type;
+}
+
+function save_page()
+{
+	var historyObject = {type: currentPageType, contents: null};
+	
+	switch(historyObject.type)
+	{
+		case pageType.FILTERS:
+			historyObject.contents = {};
+			historyObject.contents.selected_filters = getSelectedCheckboxes();
+			historyObject.contents.DOM_copy = sidePanel.innerHTML;
+			break;
+		
+		case pageType.CATEGORIES:
+			historyObject.contents = sidePanel.innerHTML;
+			break;
+		case pageType.PRODUCTS_LIST:
+			historyObject.contents = {};
+			
+			historyObject.contents.products_list_DOM_copy = products_list.innerHTML;
+			historyObject.contents.filters_DOM_copy = sidePanel.innerHTML;
+			historyObject.contents.selected_filters = getSelectedCheckboxes();
+			break;
+		case pageType.PRODUCT_INFO:
+			historyObject.contents = products_list.innerHTML;
+			break;
+		case pageType.SHOPPING_CART:
+			historyObject.contents = other_content_panel.innerHTML
+			break;
+	}
+	console.log(historyObject);
+	history.pushState(historyObject, null, null);
+	history.pushState(null, null, null); // the last element is ignored
 }
 
 async function make_request(URL, method, headers, body_content)
@@ -127,15 +248,17 @@ function removeChildren(element)
 		element.firstChild.remove();
 }
 
-// not tested
 async function examineProduct(productID)
 {
+	save_page();
+	currentPageType = pageType.PRODUCT_INFO;
+	
 	// clear the side panel
 	removeChildren(sidePanel);
 	
-	console.log("inside examine product");
+	
 	var URL = URLprefix + "product/" + productID;
-	console.log(URL);
+	
 	var response = await make_request(URL, "GET", JSON_headers, null);
 	if(!response.ok)
 	{
@@ -144,7 +267,7 @@ async function examineProduct(productID)
 	}
 	
 	var responseJSON = await response.json();
-	console.log(JSON.stringify(responseJSON));
+	
 	
 	
 	removeChildren(products_list);
@@ -175,7 +298,7 @@ async function examineProduct(productID)
 		// add the product to the customer's cart
 		var URL = URLprefix + "buy/" + product_ID;
 		var body = {"ID": product_ID, "quantity": quantity, "customer_email": my_email}
-		console.log(JSON.stringify(body));
+	
 		var response = await make_request(URL, "PUT", JSON_headers, JSON.stringify(body));
 		
 		if(!response.ok)
@@ -187,7 +310,7 @@ async function examineProduct(productID)
 		alert("Product added to cart");
 	});
 }
-// not tested
+
 function addProducts(products)
 {
 	/*
@@ -201,6 +324,10 @@ function addProducts(products)
 		
 		-function argument is an array of products
 	*/
+	save_page();
+	currentPageType = pageType.PRODUCTS_LIST;
+	
+	
 	removeChildren(product_list);
 	var product_template = document.getElementById("product_wrapper_template");
 	
@@ -216,10 +343,10 @@ function addProducts(products)
 		var productPrice = document.getElementById("product_price");
 		
 		let temp = products[i].ID;
-		productLink.addEventListener("click", async function()
+		/*productLink.addEventListener("click", async function()
 		{
 			examineProduct(temp);
-		});
+		});*/
 		
 		productThumbnail.src = products[i].thumbnail;
 		productName.innerHTML = products[i].name;
@@ -229,10 +356,11 @@ function addProducts(products)
 		productThumbnail.id = products[i].ID + "-thumbnail";
 		productName.id = products[i].ID + "-name";
 		productPrice.id = products[i].ID + "-price";
+		
+		productThumbnail.setAttribute(product_data_ID, temp);
 	}
 }
 
-// not tested
 async function sendFilters()
 {
 	var selectedFilters = getSelectedCheckboxes();
@@ -249,7 +377,7 @@ async function sendFilters()
 		var tempObject = {ID: selectedFilters[i]}
 		body.push(tempObject);
 	}
-	console.log(JSON.stringify(body));
+	
 	var response = await make_request(URL, "PUT", JSON_headers, JSON.stringify(body));
 	
 	if(!response.ok)
@@ -275,7 +403,7 @@ async function selectCategory(categoryID, categoryName)
 		}
 	*/
 	var URL = URLprefix + "category/" + categoryID;
-	console.log(URL);
+	
 	var response = await make_request(URL, "GET", JSON_headers, null);
 	if(!response.ok)
 	{
@@ -284,14 +412,23 @@ async function selectCategory(categoryID, categoryName)
 	}
 	
 	var response_JSON = await response.json();
-	console.log(response_JSON);
+	
 	
 	chosenCategoryHeader.innerHTML = categoryName;
 	
+	save_page();
 	if(response_JSON.type === "categories")
+	{
+		currentPageType = pageType.CATEGORIES;
+		
 		addCategories(response_JSON.contents);
+	}
 	else if(response_JSON.type === "filters")
+	{
+		currentPageType = pageType.FILTERS;
+		
 		addFilters(response_JSON.contents);
+	}
 	else
 		alert("Error");
 }
@@ -306,7 +443,6 @@ function addCategories(categories)
 		}
 	*/
 	
-	console.log("adding categories: " + categories);
 	if(categories == null)
 		return;
 	// adds new categories into the side panel.The argument is a JSON array.
@@ -365,8 +501,6 @@ function hide_or_display_category(categoryID)
 	else
 		element.style.display = "none";
 } 
-
-
 
 function addFilters(filters)
 {
@@ -459,7 +593,7 @@ function addFilters(filters)
 		
 		filter_values_div.id =  filter_values_wrapper_IDprefix + receivedFilters[i].filter_ID;
 		let tempID = filter_values_div.id;
-		console.log("My ID is: " + tempID);
+		
 		filter_link.setAttribute(filter_wrapper_data_attribute_name, tempID);
 		/*filter_link.addEventListener("click", function()
 		{
@@ -482,12 +616,10 @@ function getSelectedCheckboxes()
 	for (var i = 0; i < checkboxes.length; i++)
 		array.push(checkboxes[i].value);
 	
-	console.log("selected checkboxes:");
-	console.log(array);
+	
 	return array;
 }
 
-// not tested
 async function get_main_categories()
 {
 	var URL =  URLprefix + "category";
@@ -499,7 +631,6 @@ async function get_main_categories()
 	return await response.json();
 }
 
-// not tested
 function activate_registration_panel()
 {
 	removeChildren(other_content_panel);
@@ -526,8 +657,7 @@ function activate_registration_panel()
 		
 		//make_request(URL, method, headers, body_content)
 		var URL = URLprefix + "customers";
-		console.log(URL);
-		console.log(JSON.stringify(tmp));
+		
 		
 		var response = await make_request(URL, "POST", JSON_headers, JSON.stringify(tmp));
 		
@@ -542,7 +672,6 @@ function activate_registration_panel()
 	});
 }
 
-// not tested
 function activate_login_panel()
 {
 	removeChildren(other_content_panel);
@@ -571,7 +700,7 @@ function activate_login_panel()
 		}
 		
 		var responseJSON = await response.json();
-		console.log(responseJSON);
+		
 		ownID = responseJSON.ID;
 		
 		// login successful
@@ -589,6 +718,8 @@ function activate_login_panel()
 		}
 		
 		addCategories(main_categories);
+		currentPageType = pageType.CATEGORIES;
+		//save_page();
 		
 		login_button.style.display = "none";
 		shopping_cart_button.style.display = "block";
@@ -598,12 +729,9 @@ function activate_login_panel()
 		// for showing/hiding filter values
 		sidePanel.addEventListener("click", function(e)
 		{
-			console.log("Filter handler");
 			if(e.target && e.target.matches("p.filter_paragraph_class"))
 			{
-				console.log(e.target);
 				var selectedID = e.target.getAttribute(filter_wrapper_data_attribute_name);
-				console.log("selected ID: " + selectedID);
 				hide_or_display_category(selectedID);
 				
 				e.stopPropagation();
@@ -613,7 +741,6 @@ function activate_login_panel()
 		// for obtaining subcategories or filters of a clicked category
 		sidePanel.addEventListener("click", function(e)
 		{
-			console.log("category handler");
 			if(e.target && e.target.matches("p.category_class"))
 			{
 				var categoryID = e.target.getAttribute(category_data_ID);
@@ -625,6 +752,42 @@ function activate_login_panel()
 			}
 		});
 		
+		// for examining a product
+		main_content_div.addEventListener("click", function(e)
+		{
+			if(e.target && e.target.matches("img.product_thumbnail_class"))
+			{
+				var productID = e.target.getAttribute(product_data_ID);
+				
+				examineProduct(productID);
+				
+				e.stopPropagation();
+			}
+		});
+		
+		// for buying the shopping cart
+		main_content_div.addEventListener("click", function(e)
+		{
+			if(e.target && e.target.matches("button#buy_shopping_cart"))
+			{
+				buy_shopping_cart();
+				
+				e.stopPropagation();
+			}
+		});
+		
+		// for removing items from the shopping cart
+		main_content_div.addEventListener("click", function(e)
+		{
+			if(e.target && e.target.matches("button.remove_item_from_shopping_cart_button"))
+			{
+				console.log("In remove from cart handler");
+				var productID = e.target.getAttribute(shopping_cart_data_remove_ID);
+				remove_item_from_shopping_cart(productID);
+				
+				e.stopPropagation();
+			}
+		});
 		
 	});
 
@@ -632,7 +795,6 @@ function activate_login_panel()
 	register_button.addEventListener("click", activate_registration_panel);
 }
 
-// not tested
 async function get_shopping_cart_items()
 {
 	// returns a JSON array of shopping cart items
@@ -654,7 +816,6 @@ async function get_shopping_cart_items()
 	return await response.json();
 }
 
-// not tested
 async function remove_item_from_shopping_cart(product_ID)
 {
 	var URL =  URLprefix + "customers/" + ownID + "/shopping-cart/" + product_ID;
@@ -672,10 +833,58 @@ async function remove_item_from_shopping_cart(product_ID)
 	item_wrapper.remove();
 }
 
+async function buy_shopping_cart()
+{
+	/*
+		response is an array of JSON objects of the format
+		{
+			ID: ordered_product_ID,
+			name: true/false - when true, item ordering was successful
+		}
+	*/
+	var URL =  URLprefix + "customers/" + ownID + "/shopping-cart/buy";
+	var response = await make_request(URL, "PUT", JSON_headers, null);
+	if(!response.ok)
+	{
+		alert("Error");
+		return null;
+	}
+	
+	var responseJSON = await response.json();
+	console.log(responseJSON);
+	var item_wrappers = document.getElementsByClassName("shopping_cart_item");
+	
+	
+	var itemsToRemove = [];
+	for(var j = 0; j < item_wrappers.length; j++)
+	{
+		for(var i = 0; i < responseJSON.length; i++)
+		{
+			if(item_wrappers[j].id == responseJSON[i].ID)
+			{
+				if(responseJSON[i].name == "true")
+					itemsToRemove.push(responseJSON[i].ID);
+				else
+					item_wrappers[j].style.color = "red";
+				
+				break;
+			}
+		}
+	}
 
-// not tested
+	for(var i = 0; i < itemsToRemove.length; i++)
+	{
+		var item = document.getElementById(itemsToRemove[i]);
+		item.parentNode.removeChild(item);
+	}
+}
+
 async function activate_shopping_cart_panel()
 {
+	save_page();
+	currentPageType = pageType.SHOPPING_CART;
+	
+	
 	removeChildren(sidePanel);
 	removeChildren(other_content);
 	removeChildren(products_list);
@@ -688,7 +897,6 @@ async function activate_shopping_cart_panel()
 		alert("Error");
 		return;
 	}
-	
 	
 	// populate the shopping cart panel
 	var articles_holder = document.getElementById("articles_in_cart_holder");
@@ -711,10 +919,11 @@ async function activate_shopping_cart_panel()
 		item_price.innerHTML += shopping_cart_items[i].price*shopping_cart_items[i].quantity + currencySymbol;
 		item_quantity.innerHTML += shopping_cart_items[i].quantity;
 		let tmp = shopping_cart_items[i].product_ID;
-		item_remove_button.addEventListener("click", function()
+		item_remove_button.setAttribute(shopping_cart_data_remove_ID, tmp);
+		/*item_remove_button.addEventListener("click", function()
 		{
 			remove_item_from_shopping_cart(tmp);
-		});
+		});*/
 		
 		item_thumbnail.id = shopping_cart_items[i].product_ID + "-thumbnail";
 		item_name.id = shopping_cart_items[i].product_ID + "-name";
@@ -727,52 +936,10 @@ async function activate_shopping_cart_panel()
 	other_content_panel.style.display = "block";
 	
 	var buy_cart_button = document.getElementById("buy_shopping_cart");
-	buy_cart_button.addEventListener("click", async function() 
+	/*buy_cart_button.addEventListener("click", async function() 
 	{
-		/*
-			response is an array of JSON objects of the format
-			{
-				ID: ordered_product_ID,
-				name: true/false - when true, item ordering was successful
-			}
-		*/
-		var URL =  URLprefix + "customers/" + ownID + "/shopping-cart/buy";
-		var response = await make_request(URL, "PUT", JSON_headers, null);
-		if(!response.ok)
-		{
-			alert("Error");
-			return null;
-		}
-		
-		var responseJSON = await response.json();
-		
-		var item_wrappers = document.getElementsByClassName("shopping_cart_item");
-		console.log("purchased");
-		console.log(responseJSON);
-		
-		var itemsToRemove = [];
-		for(var j = 0; j < item_wrappers.length; j++)
-		{
-			for(var i = 0; i < responseJSON.length; i++)
-			{
-				if(item_wrappers[j].id == responseJSON[i].ID)
-				{
-					if(responseJSON[i].name == "true")
-						itemsToRemove.push(responseJSON[i].ID);
-					else
-						item_wrappers[j].style.color = "red";
-					
-					break;
-				}
-			}
-		}
-
-		for(var i = 0; i < itemsToRemove.length; i++)
-		{
-			var item = document.getElementById(itemsToRemove[i]);
-			item.parentNode.removeChild(item);
-		}
-	});
+		buy_shopping_cart();
+	});*/
 }
 
 /*for(var i = 0; i < 20; i++)

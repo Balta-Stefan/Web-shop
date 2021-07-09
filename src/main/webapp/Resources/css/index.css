@@ -98,6 +98,9 @@ ul#product_list li{
 	width: 250px;
 	height: 250px;
 }
+.product_thumbnail_class:hover{
+	cursor: pointer;
+}
 
 /*ul#product_list img{
 	//width: 100%;
