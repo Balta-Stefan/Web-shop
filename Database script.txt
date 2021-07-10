@@ -400,6 +400,7 @@ CREATE USER 'customer' IDENTIFIED BY 'customerPass';
 
 CREATE USER 'employee' IDENTIFIED BY 'employeePass';
 
+GRANT SELECT, UPDATE ON Customers TO customer;
 GRANT SELECT ON Products TO customer;
 GRANT SELECT ON Product_pictures TO customer;
 GRANT SELECT, INSERT, DELETE, UPDATE ON Product_reviews TO customer;
@@ -408,7 +409,9 @@ GRANT SELECT ON Category_filters TO customer;
 GRANT SELECT ON Filter_values TO customer;
 GRANT SELECT ON Product_filter_values TO customer;
 GRANT INSERT ON Orders TO customer;
+GRANT SELECT ON Manufacturers TO customer;
 
+GRANT SELECT ON Employees TO employee;
 GRANT SELECT ON Products TO employee;
 GRANT SELECT ON Product_reviews TO employee;
 GRANT SELECT ON Product_pictures TO employee;
@@ -416,6 +419,7 @@ GRANT SELECT ON Customers TO employee;
 GRANT SELECT ON Suppliers TO employee;
 GRANT SELECT ON Warehouses TO employee;
 GRANT SELECT ON Manufacturers TO employee;
+GRANT SELECT ON Orders TO employee;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
