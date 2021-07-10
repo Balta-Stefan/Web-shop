@@ -1,6 +1,8 @@
 const filters_type = "filters";
 const subcategories_type = "categories";
 
+const categories_and_filters_path = document.getElementById("categories_and_filters_path");
+
 var currentlySelected = null;
 
 async function getCategories()
@@ -33,6 +35,10 @@ async function getCategories()
 	
 	select.addEventListener("change", async function(event)
 	{
+		var options = this.getElementsByTagName("option");
+		var optionHTML = options[this.selectedIndex].innerHTML;  
+		
+		categories_and_filters_path.innerHTML = optionHTML;
 		var selectedID = event.target.value;
 		modifySelect(select, selectedID);
 	});
@@ -41,6 +47,12 @@ async function getCategories()
 	{
 		if(currentlySelected === filters_type)
 			return; // filters don't have subfilters
+		
+		var options = this.getElementsByTagName("option");
+		var optionHTML = options[this.selectedIndex].innerHTML;  
+		
+		categories_and_filters_path.innerHTML += " > " + optionHTML;
+		
 		var selectedID = event.target.value;
 		modifySelect(subcategories_or_filters_select, selectedID);
 	});
