@@ -16,9 +16,10 @@ import webStore.utilities.connectionPool;
 
 public class InventoryDAO
 {
-	private static final String getInventory = "SELECT * FROM Inventory";
+	private static final String getInventories = "SELECT * FROM Inventory";
 	private static final String addToInventory = "INSERT INTO Inventory(amount, price, delivered_at, available_amount, stored_at, suppliers_price, product_ID, supplier_ID) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String get_product_from_inventory = "SELECT * FROM Inventory WHERE product_ID = ?";
+	private static final String getInventory = "SELECT * FROM Inventory WHERE inventory_ID = ?";
 
 	private connectionPool pool;
 	
@@ -97,7 +98,7 @@ public class InventoryDAO
 		
 		Connection connection = pool.getConnection();
 		List<Inventory> list = new ArrayList<>();
-		try(PreparedStatement s = connection.prepareStatement(getInventory))
+		try(PreparedStatement s = connection.prepareStatement(getInventories))
 		{
 			try(ResultSet results = s.executeQuery())
 			{
@@ -128,5 +129,34 @@ public class InventoryDAO
 
 
 		return list;
+	}
+
+	public Inventory getInventory(int inventoryID)
+	{
+		Connection connection = pool.getConnection();
+		try(PreparedStatement s = connection.prepareStatement(getInventory))
+		{
+			s.setInt(1, inventoryID);
+			try(ResultSet results = s.executeQuery();)
+			{
+				results.next();
+	    		
+	    		return  new Inventory(results.getInt("inventory_ID"),
+                        results.getInt("amount"),
+                        results.getBigDecimal("price"),
+                        results.getObject("delivered_at", LocalDateTime.class),
+                        results.getInt("available_amount"),
+                        results.getInt("stored_at"),
+                        results.getBigDecimal("suppliers_price"),
+                        results.getInt("product_ID"),
+                        results.getInt("supplier_ID"),
+                        results.getDate("expiration_date"));
+			}
+		}
+		catch(SQLException e) {return null;}
+		finally
+		{
+			pool.returnConnection(connection);
+		}
 	}
 }

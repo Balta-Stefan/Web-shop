@@ -420,6 +420,7 @@ GRANT SELECT ON Suppliers TO employee;
 GRANT SELECT ON Warehouses TO employee;
 GRANT SELECT ON Manufacturers TO employee;
 GRANT SELECT ON Orders TO employee;
+GRANT SELECT ON Inventory TO employee;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

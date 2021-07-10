@@ -271,6 +271,17 @@ public class Controller
 		
 		return Response.status(200).entity(employeePanel).build();
 	}
+	@GET
+	@Path("/employees/js/employee inventory.js")
+	@Produces("text/javascript")
+	public Response getEmployeeInventoryJS()
+	{
+		String employeePanel = readFile("\\Employees\\js\\employee inventory.js");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
 	
 	@GET
 	@Path("/employees/categories_and_filters")
@@ -284,7 +295,7 @@ public class Controller
 		return Response.status(200).entity(employeePanel).build();
 	}
 	@GET
-	@Path("/employees/css/employee categories_and_filters.css")
+	@Path("/employees/css/employee categories and filters.css")
 	@Produces("text/css")
 	public Response getEmployeesCategoriesAndFiltersCSS()
 	{
@@ -294,7 +305,17 @@ public class Controller
 		
 		return Response.status(200).entity(employeePanel).build();
 	}
-	
+	@GET
+	@Path("/employees/js/employee categories and filters.js")
+	@Produces("text/javascript")
+	public Response getEmployeesCategoriesAndFiltersJS()
+	{
+		String employeePanel = readFile("\\Employees\\js\\employee categories and filters.js");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
 	
 	@GET
 	@Path("/employees/panel")
@@ -354,6 +375,7 @@ public class Controller
     	return Response.status(200).entity(file).build();
     }
 
+	
 
     @GET
     @Path("/employees/orders")
@@ -367,7 +389,6 @@ public class Controller
     	
     	return Response.status(200).entity(orders).build();
     }
-    
     @GET
     @Path("/employees/orders/{order_ID}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -393,7 +414,6 @@ public class Controller
     	
     	return Response.status(200).entity(warehouses).build();
     }
-
     @GET
     @Path("/employees/warehouses/{warehouse_ID}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -432,6 +452,30 @@ public class Controller
     	return Response.status(200).entity(product).build();
     }
     
+    @GET
+    @Path("/employees/inventory")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getInventories()
+    {
+    	List<Inventory> inventories = new InventoryDAO(employeePool).getInventory();
+    	
+    	if(inventories == null)
+    		return Response.status(500).build();
+    	
+    	return Response.status(200).entity(inventories).build();
+    }
+    @GET
+    @Path("/employees/inventory/{inventory_ID}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getInventory(@PathParam("inventory_ID") int inventory_ID)
+    {
+    	Inventory inventory = new InventoryDAO(employeePool).getInventory(inventory_ID);
+    	
+    	if(inventory == null)
+    		return Response.status(500).build();
+    	
+    	return Response.status(200).entity(inventory).build();
+    }
     // customer related
     
     @GET

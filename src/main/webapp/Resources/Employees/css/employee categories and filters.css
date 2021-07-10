@@ -1,0 +1,13 @@
+select#categories_select{
+	width: 100%;
+	height: 15rem;
+}
+
+div#categories_and_filters_info_wrapper{
+	display: flex;
+	flex-direction: column;
+}
+
+h2#categories_and_filters_header{
+	margin-bottom: 0;
+}
