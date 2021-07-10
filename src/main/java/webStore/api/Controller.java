@@ -24,6 +24,7 @@ import webStore.DAO.Order_statusesDAO;
 import webStore.DAO.OrdersDAO;
 import webStore.DAO.ProductDAO;
 import webStore.DAO.Product_categoriesDAO;
+import webStore.DAO.WarehouseDAO;
 import webStore.model.Customer;
 import webStore.model.Employee;
 import webStore.model.Inventory;
@@ -31,6 +32,7 @@ import webStore.model.Order;
 import webStore.model.Order_status;
 import webStore.model.Product;
 import webStore.model.Product_category;
+import webStore.model.Warehouse;
 import webStore.responses.*;
 import webStore.utilities.connectionPool;
 
@@ -50,11 +52,17 @@ import webStore.utilities.connectionPool;
 @Path("/v1")
 public class Controller
 {
-	private static connectionPool pool = new connectionPool();
+	private static final String DB_rootUsername = "root";
+	private static final String DB_rootPassword = "sigurnost";
+	private static final String DB_customerUsername = "customer";
+	private static final String DB_customerPassword = "customerPass";
+	private static final String DB_employeeUsername = "employee";
+	private static final String DB_employeePassword = "employeePass";
 	
-	private static String html_file;
-	private static String css_file;
-	private static String javascript_file;
+	private static connectionPool customerPool = new connectionPool(DB_customerUsername, DB_customerPassword);
+	private static connectionPool employeePool = new connectionPool(DB_employeeUsername, DB_employeePassword);
+	private static connectionPool rootPool = new connectionPool(DB_rootUsername, DB_rootPassword);
+	
 	
 	private static final String ordered_status_name = "ORDERED";
 	private static int ordered_status_ID; // might cause issues along with ordered_status_name
@@ -71,7 +79,7 @@ public class Controller
 		    //Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/mydb", "root", "sigurnost");
 		    //DBAccessObject = new MySQL_DAO(connection);
 		    
-		    List<Order_status> tmpList = new Order_statusesDAO(pool).getAll();
+		    List<Order_status> tmpList = new Order_statusesDAO(rootPool).getAll();
 		    for(Order_status s : tmpList)
 		    {
 		    	if(s.status_type.equals(ordered_status_name))
@@ -195,6 +203,17 @@ public class Controller
 		
 		return Response.status(200).entity(employeePanel).build();
 	}
+	@GET
+	@Path("/employees/js/employee warehouses.js")
+	@Produces("text/javascript")
+	public Response getEmployeeWarehousesJS()
+	{
+		String employeePanel = readFile("\\Employees\\js\\employee warehouses.js");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
 	
 	@GET
 	@Path("/employees/products")
@@ -218,7 +237,18 @@ public class Controller
 		
 		return Response.status(200).entity(employeePanel).build();
 	}
-
+	@GET
+	@Path("/employees/js/employee products.js")
+	@Produces("text/javascript")
+	public Response getEmployeeProductsJS()
+	{
+		String employeePanel = readFile("\\Employees\\js\\employee products.js");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	
 	@GET
 	@Path("/employees/inventory")
 	@Produces("text/html")
@@ -293,7 +323,7 @@ public class Controller
 	@Path("/employees/login")
 	public Response employeeLogin(@FormParam("username") String username, @FormParam("password") String password)
 	{
-		Employee employee = new EmployeesDAO(pool).get(username);
+		Employee employee = new EmployeesDAO(employeePool).get(username);
 		if(employee == null || password.equals(employee.password) == false)
 			return Response.status(403).build();
 		
@@ -330,12 +360,76 @@ public class Controller
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOrders()
     {
-    	List<Order> orders = new OrdersDAO(pool).getAll();
+    	List<Order> orders = new OrdersDAO(employeePool).getAll();
     	
     	if(orders == null)
     		return Response.status(500).build();
     	
     	return Response.status(200).entity(orders).build();
+    }
+    
+    @GET
+    @Path("/employees/orders/{order_ID}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getOrder(@PathParam("order_ID") int order_ID)
+    {
+    	Order order = new OrdersDAO(employeePool).get(order_ID);
+    	
+    	if(order == null)
+    		return Response.status(500).build();
+    	
+    	return Response.status(200).entity(order).build();
+    }
+
+    @GET
+    @Path("/employees/warehouses")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getWarehouses()
+    {
+    	List<Warehouse> warehouses = new WarehouseDAO(employeePool).getWarehouses();
+    	
+    	if(warehouses == null)
+    		return Response.status(500).build();
+    	
+    	return Response.status(200).entity(warehouses).build();
+    }
+
+    @GET
+    @Path("/employees/warehouses/{warehouse_ID}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getWarehouse(@PathParam("warehouse_ID") int warehouse_ID)
+    {
+    	Warehouse warehouse = new WarehouseDAO(employeePool).getWarehouse(warehouse_ID);
+    	
+    	if(warehouse == null)
+    		return Response.status(500).build();
+    	
+    	return Response.status(200).entity(warehouse).build();
+    }
+    
+    @GET
+    @Path("/employees/products")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getProducts()
+    {
+    	List<Product> products = new ProductDAO(employeePool).getProducts();
+    	
+    	if(products == null)
+    		return Response.status(500).build();
+    	
+    	return Response.status(200).entity(products).build();
+    }
+    @GET
+    @Path("/employees/products/{product_ID}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getProductEmployee(@PathParam("product_ID") int product_ID)
+    {
+    	Product product = new ProductDAO(employeePool).getProduct(product_ID);
+    	
+    	if(product == null)
+    		return Response.status(500).build();
+    	
+    	return Response.status(200).entity(product).build();
     }
     
     // customer related
@@ -385,7 +479,7 @@ public class Controller
     	inventories_containing_product.sort((a, b) -> a.delivered_at.compareTo(b.delivered_at));
     	Inventory target_inventory = inventories_containing_product.get(0);
     	
-    	ProductDAO prodDAO = new ProductDAO(pool);
+    	ProductDAO prodDAO = new ProductDAO(customerPool);
     	prodDAO.updateProductPrice(target_inventory.product_ID, target_inventory.price);
     	//DBAccessObject.updatePrice(target_inventory.product_ID, target_inventory.price);
     }
@@ -396,7 +490,7 @@ public class Controller
 	public Response registerUser(Customer registrationInfo)
 	{
 		// only emails are unique so there is no need to check if the user already exists
-		boolean response = new CustomerDAO(pool).add(registrationInfo);
+		boolean response = new CustomerDAO(customerPool).add(registrationInfo);
 		//boolean response = DBAccessObject.customerRegistration(registrationInfo);
 		
 		if(response == true)
@@ -430,7 +524,7 @@ public class Controller
 		
 		// getCustomer(String email)
 		//Customer customerData = DBAccessObject.getCustomer(customer.email);
-		Customer customerData = new CustomerDAO(pool).get(customer.email);
+		Customer customerData = new CustomerDAO(customerPool).get(customer.email);
 		if(customerData == null || customer.password.equals(customerData.password) == false)
 			return Response.status(404).build();
 		
@@ -455,7 +549,7 @@ public class Controller
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getMainCategories()
 	{
-		List<ID_string_pair> categories = new Product_categoriesDAO(pool).getMainCategories();//DBAccessObject.getMainCategories();
+		List<ID_string_pair> categories = new Product_categoriesDAO(customerPool).getMainCategories();//DBAccessObject.getMainCategories();
 		if(categories == null)
 			return Response.status(400).build();
 		for(ID_string_pair m : categories)
@@ -472,14 +566,14 @@ public class Controller
 		// first determine whether a category contains any subcategories.If it does, get its subcategories.If it doesn't, get its filters.
 		
 		//Product_category category = DBAccessObject.getCategory(categoryID);
-		Product_categoriesDAO productCatsDAO = new Product_categoriesDAO(pool);
+		Product_categoriesDAO productCatsDAO = new Product_categoriesDAO(customerPool);
 		Product_category category = productCatsDAO.get(categoryID);
 		if(category.number_of_subcategories == 0)
 		{
 			// get the category's filters
 			Filters filters = new Filters();
 			//filters.contents = DBAccessObject.get_filters(categoryID);
-			filters.contents = new Filter_valuesDAO(pool).get_filters(categoryID);
+			filters.contents = new Filter_valuesDAO(customerPool).get_filters(categoryID);
 			return Response.status(200).entity(filters).build();
 		}
 		
@@ -501,7 +595,7 @@ public class Controller
 			filterIdentifiers.add(pair.ID);
 		
 		//List<Product> products = DBAccessObject.getFilteredProducts(filterIdentifiers);
-		List<Product> products = new ProductDAO(pool).getFilteredProducts(filterIdentifiers);
+		List<Product> products = new ProductDAO(customerPool).getFilteredProducts(filterIdentifiers);
 		List<TrimmedProduct> responseProducts = new ArrayList<>();
 		
 		for(Product p : products)
@@ -516,7 +610,7 @@ public class Controller
 	public Response getProduct(@PathParam("productID") int productID)
 	{
 		//Product product = DBAccessObject.getProduct(productID);
-		Product product = new ProductDAO(pool).getProduct(productID);
+		Product product = new ProductDAO(customerPool).getProduct(productID);
 		if(product == null)
 			return Response.status(404).build();
 		
@@ -533,7 +627,7 @@ public class Controller
 			return Response.status(404).build();
 		
 		//Customer customer = DBAccessObject.getCustomer(purchaser.customer_ID);
-		CustomerDAO custDAO = new CustomerDAO(pool);
+		CustomerDAO custDAO = new CustomerDAO(customerPool);
 		Customer customer = custDAO.get(purchaser.customer_ID);
 		String customerCart = customer.shopping_cart;
 		if(customerCart == null)
@@ -579,12 +673,12 @@ public class Controller
 	
 	private Customer get_customer_shopping_cart(int customerID)
 	{
-		ProductDAO prodDAO = new ProductDAO(pool);
+		ProductDAO prodDAO = new ProductDAO(customerPool);
 		
 		List<Product> cart = new ArrayList<>();
 		
 		//Customer customer = DBAccessObject.getCustomer(customerID);
-		Customer customer = new CustomerDAO(pool).get(customerID);
+		Customer customer = new CustomerDAO(customerPool).get(customerID);
 		if(customer == null)
 			return null;
 		
@@ -640,7 +734,7 @@ public class Controller
 	public Response removeProductFromShoppingCart(@PathParam("ID") int customerID, @PathParam("product_ID") int product_ID)
 	{
 		// authentication isn't possible because of the lack of cookies
-		CustomerDAO custDAO = new CustomerDAO(pool);
+		CustomerDAO custDAO = new CustomerDAO(customerPool);
 		//Customer customer = DBAccessObject.getCustomer(customerID);
 		Customer customer = custDAO.get(customerID);
 		
@@ -685,8 +779,8 @@ public class Controller
 		if(products == null)
 			return Response.status(404).build();
 		
-		InventoryDAO invDAO = new InventoryDAO(pool);
-		OrdersDAO ordersDAO = new OrdersDAO(pool);
+		InventoryDAO invDAO = new InventoryDAO(customerPool);
+		OrdersDAO ordersDAO = new OrdersDAO(customerPool);
 		for(Product p : products)
 		{	//int inventory_ID, int amount, LocalDateTime order_received_at, int status_ID, int ordered_by
 			//List<Inventory> inventory_status = DBAccessObject.getProductFromInventory(p.product_ID, true);
@@ -756,7 +850,7 @@ public class Controller
 		}
 		
 		purchaser.shopping_cart = oldShoppingCart.toString();
-		CustomerDAO custDAO = new CustomerDAO(pool);
+		CustomerDAO custDAO = new CustomerDAO(customerPool);
 		if(custDAO.updateShoppingCart(purchaser) == false)
 			return Response.status(400).build();
 		

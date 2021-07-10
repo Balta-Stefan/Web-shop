@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Employee warehouses</title>
+		<link href="css/employee index.css" type="text/css" rel="stylesheet" />
+		<link href="css/employee warehouses.css" type="text/css" rel="stylesheet" />
+		
+		<script src="js/utilities.js" type="text/javascript" defer></script> 
+		<script src="js/employee warehouses.js" type="text/javascript" defer></script> 
+		
+		<!-- <script src="v1/js/employee login.js" type="text/javascript" defer></script> -->
+		
+		<meta charset="UTF-8">
+		<meta name="author" content="Balta Stefan">
+		<meta name="viewport" content="width=device-width, initial-scale=1"> <!-- media queries don't work without this line-->
+	</head>
+	
+	<body>
+		<header>
+			<p>Logout</a>
+		</header>
+		
+		<div id="sidenav_and_main_content_wrapper">
+			<div id="sidenav">
+				<a href="./orders-panel">Orders</a>
+				<a href="./suppliers">Suppliers</a>
+				<a href="#">Warehouses</a>
+				<a href="./products">Products</a>
+				<a href="./inventory">Inventory</a>
+				<a href="./categories_and_filters">Product categories and filters</a>
+			</div>
+			
+			<div id="main_content">
+				<h2 id="warehouses_header">Warehouses</h2>
+				<select id="warehouses_select" size="5"></select>
+				<div id="warehouses_info_wrapper">
+					<label for="capacity_input">Capacity</label>
+					<input disabled id="capacity_input"/>
+					
+					<label for="free_capacity_input">Free capacity</label>
+					<input disabled id="free_capacity_input"/>
+					
+					<label for="address_input">Address</label>
+					<input disabled id="address_input"/>
+					
+					<label for="country_input">Country</label>
+					<input disabled id="country_input"/>
+					
+					<label for="state_input">State</label>
+					<input disabled id="state_input"/>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+
+
+
+

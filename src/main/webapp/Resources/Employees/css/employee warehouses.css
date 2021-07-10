@@ -1,0 +1,13 @@
+select#warehouses_select{
+	width: 100%;
+	height: 15rem;
+}
+
+div#warehouses_info_wrapper{
+	display: flex;
+	flex-direction: column;
+}
+
+h2#warehouses_header{
+	margin-bottom: 0;
+}

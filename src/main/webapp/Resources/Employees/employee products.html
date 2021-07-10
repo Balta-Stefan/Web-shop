@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Employee products</title>
+		<link href="css/employee index.css" type="text/css" rel="stylesheet" />
+		<link href="css/employee products.css" type="text/css" rel="stylesheet" />
+		
+		<script src="js/utilities.js" type="text/javascript" defer></script> 
+		<script src="js/employee products.js" type="text/javascript" defer></script> 
+		
+		<!-- <script src="v1/js/employee login.js" type="text/javascript" defer></script> -->
+		
+		<meta charset="UTF-8">
+		<meta name="author" content="Balta Stefan">
+		<meta name="viewport" content="width=device-width, initial-scale=1"> <!-- media queries don't work without this line-->
+	</head>
+	
+	<body>
+		<header>
+			<p>Logout</a>
+		</header>
+		
+		<div id="sidenav_and_main_content_wrapper">
+			<div id="sidenav">
+				<a href="./orders-panel">Orders</a>
+				<a href="./suppliers">Suppliers</a>
+				<a href="./warehouses">Warehouses</a>
+				<a href="#">Products</a>
+				<a href="./inventory">Inventory</a>
+				<a href="./categories_and_filters">Product categories and filters</a>
+			</div>
+			
+			<div id="main_content">
+				<h2 id="products_header">Products</h2>
+				<select id="products_select" size="5"></select>
+				<div id="products_info_wrapper">
+					<img id="thumbnail"/>
+				
+					<label for="name">Name</label>
+					<input disabled id="name"/>
+					
+					<label for="manufacturer">Manufacturer</label>
+					<input disabled id="manufacturer"/>
+					
+					<label for="price">Price</label>
+					<input disabled id="price"/>
+					
+					<label for="category_ID">Category ID</label>
+					<input disabled id="category_ID"/>
+					
+					<label for="mass">Mass</label>
+					<input disabled id="mass"/>
+					
+					<label for="warranty">Warranty</label>
+					<input disabled id="warranty"/>
+					
+					<label for="description">Description</label>
+					<textarea disabled id="description"></textarea>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+
+
+
+
