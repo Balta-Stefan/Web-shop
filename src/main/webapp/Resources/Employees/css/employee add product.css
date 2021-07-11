@@ -1,0 +1,23 @@
+form#add_product_form{
+	display: flex;
+	flex-direction: column;
+}
+
+textarea#description{
+	height: 8rem;
+}
+
+button#add_product_button{
+	color: white;
+	background-color: red;
+	border: none;
+	font-weight: bold;
+	
+	margin-top: 25px;
+	width: 15rem;
+	height: 2rem;
+}
+button#add_product_button:hover{
+	opacity: 0.5
+}
+

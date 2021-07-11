@@ -412,7 +412,7 @@ GRANT INSERT ON Orders TO customer;
 GRANT SELECT ON Manufacturers TO customer;
 
 GRANT SELECT ON Employees TO employee;
-GRANT SELECT ON Products TO employee;
+GRANT SELECT, INSERT, UPDATE ON Products TO employee;
 GRANT SELECT, DELETE ON Product_categories TO employee;
 GRANT SELECT ON Product_reviews TO employee;
 GRANT SELECT ON Product_pictures TO employee;

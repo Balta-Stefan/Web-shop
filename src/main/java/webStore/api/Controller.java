@@ -319,6 +319,41 @@ public class Controller
 	}
 	
 	@GET
+	@Path("/employees/add-product")
+	@Produces("text/html")
+	public Response getEmployeesAddProduct()
+	{
+		String employeePanel = readFile("\\Employees\\employee add product.html");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	@GET
+	@Path("/employees/css/employee add product.css")
+	@Produces("text/css")
+	public Response getEmployeesAddProductCSS()
+	{
+		String employeePanel = readFile("\\Employees\\css\\employee add product.css");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	@GET
+	@Path("/employees/js/employee add product.js")
+	@Produces("text/javascript")
+	public Response getEmployeesAddProductJS()
+	{
+		String employeePanel = readFile("\\Employees\\js\\employee add product.js");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	
+	
+	@GET
 	@Path("/employees/panel")
 	@Produces("text/html")
 	public Response getEmployeeIndex()
@@ -477,6 +512,20 @@ public class Controller
     	
     	return Response.status(200).entity(inventory).build();
     }
+   
+    @PUT
+    @Path("/product")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addProduct(Product product)
+    {
+    	boolean status = new ProductDAO(employeePool).insert(product);
+    	
+    	if(status == false)
+    		return Response.status(400).build();
+    				
+    	return Response.status(200).build();
+    }
+    
     // customer related
     
     @GET

@@ -25,3 +25,9 @@ async function make_request(URL, method, headers, body_content)
 	//const json_response = await response.json();
 	return response;
 }
+
+function FormData_to_JSON(formData_object)
+{
+	const plainFormData = Object.fromEntries(formData_object.entries());
+	return plainFormData;
+}

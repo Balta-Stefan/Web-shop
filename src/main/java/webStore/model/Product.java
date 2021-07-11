@@ -1,6 +1,7 @@
 package webStore.model;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class Product
 {
@@ -13,8 +14,11 @@ public class Product
     public double mass;
     public String description, thumbnail;
     public byte warranty_months;
+    public List<String> otherPictureURIs;
 
     public int quantity; // used when returning customer's cart
+    
+    public Product() {}
     
     public Product(int product_ID, String name, int manufacturer_ID, BigDecimal price, int category_ID, double mass, String description, String thumbnail, byte warranty_months)
     {
@@ -57,7 +61,9 @@ public class Product
 		return "Product [product_ID=" + product_ID + ", name=" + name + ", manufacturer_ID=" + manufacturer_ID
 				+ ", manufacturer=" + manufacturer + ", price=" + price + ", category_ID=" + category_ID + ", mass="
 				+ mass + ", description=" + description + ", thumbnail=" + thumbnail + ", warranty_months="
-				+ warranty_months + "]";
+				+ warranty_months + ", otherPictureURIs=" + otherPictureURIs + ", quantity=" + quantity + "]";
 	}
+
+	
 
 }
