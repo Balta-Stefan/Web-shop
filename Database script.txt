@@ -417,7 +417,7 @@ GRANT SELECT, DELETE ON Product_categories TO employee;
 GRANT SELECT ON Product_reviews TO employee;
 GRANT SELECT ON Product_pictures TO employee;
 GRANT SELECT ON Customers TO employee;
-GRANT SELECT ON Suppliers TO employee;
+GRANT SELECT, INSERT ON Suppliers TO employee;
 GRANT SELECT ON Warehouses TO employee;
 GRANT SELECT ON Manufacturers TO employee;
 GRANT SELECT ON Orders TO employee;

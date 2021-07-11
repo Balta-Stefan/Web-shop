@@ -25,6 +25,7 @@ import webStore.DAO.Order_statusesDAO;
 import webStore.DAO.OrdersDAO;
 import webStore.DAO.ProductDAO;
 import webStore.DAO.Product_categoriesDAO;
+import webStore.DAO.SupplierDAO;
 import webStore.DAO.WarehouseDAO;
 import webStore.model.Customer;
 import webStore.model.Employee;
@@ -33,6 +34,7 @@ import webStore.model.Order;
 import webStore.model.Order_status;
 import webStore.model.Product;
 import webStore.model.Product_category;
+import webStore.model.Supplier;
 import webStore.model.Warehouse;
 import webStore.responses.*;
 import webStore.utilities.connectionPool;
@@ -176,6 +178,17 @@ public class Controller
 	public Response getEmployeeSuppliersCSS()
 	{
 		String employeePanel = readFile("\\Employees\\css\\employee suppliers.css");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	@GET
+	@Path("/employees/js/employee suppliers.js")
+	@Produces("text/javascript")
+	public Response getEmployeeSuppliersJS()
+	{
+		String employeePanel = readFile("\\Employees\\js\\employee suppliers.js");
 		if(employeePanel == null)
 			return Response.status(500).build();
 		
@@ -524,6 +537,39 @@ public class Controller
     		return Response.status(400).build();
     				
     	return Response.status(200).build();
+    }
+    
+    @PUT
+    @Path("/supplier")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addSupplier(Supplier supplier)
+    {
+    	if(supplier.name.isEmpty())
+    		return Response.status(400).build();
+
+    	boolean status = new SupplierDAO(employeePool).addSupplier(supplier);
+    	
+    	if(status == false)
+    		return Response.status(400).build();
+    	
+    	return Response.status(200).build();
+    }
+    @GET
+    @Path("/supplier")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getSuppliers()
+    {
+    	List<Supplier> suppliers = new SupplierDAO(employeePool).getSuppliers();
+    	if(suppliers == null)
+    		return Response.status(400).build();
+    	
+    	List<ID_string_pair> pairs = new ArrayList<>();
+    	for(Supplier s : suppliers)
+    	{
+    		pairs.add(new ID_string_pair(s.supplier_ID, s.name));
+    	}
+    	
+    	return Response.status(200).entity(pairs).build();
     }
     
     // customer related

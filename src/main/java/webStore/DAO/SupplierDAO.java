@@ -17,12 +17,35 @@ import webStore.utilities.connectionPool;
 public class SupplierDAO
 {
 	private static final String getSuppliers = "SELECT * FROM Suppliers";
+	private static final String insertSupplier = "INSERT INTO Suppliers(name, phone, email, website) VALUES(?, ?, ?, ?)";
 
 	private connectionPool pool;
 	
 	public SupplierDAO(connectionPool pool)
 	{
 		this.pool = pool;
+	}
+	
+	public boolean addSupplier(Supplier supplier)
+	{
+		Connection connection = pool.getConnection();
+		try(PreparedStatement s = connection.prepareStatement(insertSupplier))
+		{
+			s.setString(1,  supplier.name);
+			s.setString(2, supplier.phone);
+			s.setString(3, supplier.email);
+			s.setString(4, supplier.website);
+		
+			s.execute();
+		}
+		catch(SQLException e) {return false;}
+		finally
+		{
+			pool.returnConnection(connection);
+		}
+
+		
+		return true;
 	}
 
 	public List<Supplier> getSuppliers()
