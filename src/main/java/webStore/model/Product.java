@@ -15,6 +15,7 @@ public class Product
     public String description, thumbnail;
     public byte warranty_months;
     public List<String> otherPictureURIs;
+    public List<Integer> filter_value_IDs;
 
     public int quantity; // used when returning customer's cart
     

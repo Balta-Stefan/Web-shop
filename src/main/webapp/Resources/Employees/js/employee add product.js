@@ -15,6 +15,11 @@ async function submitForm()
 	for(var i = 0; i < formData_JSON.otherPictureURIs.length; i++)
 		formData_JSON.otherPictureURIs[i] = formData_JSON.otherPictureURIs[i].trimStart();
 	
+	formData_JSON.filter_value_IDs = formData_JSON.filter_value_IDs.split(",");
+	for(var i = 0; i < formData_JSON.filter_value_IDs.length; i++)
+		formData_JSON.filter_value_IDs[i] = formData_JSON.filter_value_IDs[i].trimStart();
+	
+	
 	
 	var URL = "../product";
 	var response = await make_request(URL, "PUT", JSON_headers, JSON.stringify(formData_JSON));

@@ -20,6 +20,7 @@ public class ProductDAO
 	private static final String addProductPicture = "INSERT INTO Product_pictures(product_ID, picture_URI) VALUES(?, ?)";
 	private static final String getAllProducts = "SELECT * FROM Products";
 	private static final String get_product = "SELECT * FROM Products WHERE product_ID = ?";
+	private static final String get_product_by_name = "SELECT * FROM Products WHERE name = ?";
 	private static final String update_product_price = "UPDATE Products SET price = ? WHERE product_ID = ?";
 	
 	private connectionPool pool;
@@ -171,6 +172,25 @@ public class ProductDAO
 			s.setByte(7, product.warranty_months);
 			
 			s.execute();
+			
+			try(PreparedStatement ps2 = connection.prepareStatement(get_product_by_name))
+			{
+				ps2.setString(1, product.name);
+				try(ResultSet results = ps2.executeQuery())
+				{
+					results.next();
+					
+					int productID = results.getInt("product_ID");
+					
+					Product_filter_valuesDAO dao = new Product_filter_valuesDAO(pool);
+					
+					for(Integer i : product.filter_value_IDs)
+					{
+						dao.addFilterToProduct(productID, i);
+					}
+				}
+			}
+			catch(SQLException e) {return false;}
 		}
 		catch(SQLException e) {return false;}
 		finally
