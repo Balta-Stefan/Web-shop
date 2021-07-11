@@ -1,5 +1,6 @@
 package webStore.DAO;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,12 +32,33 @@ public class Product_categoriesDAO
 	private static final String get_main_categories = "SELECT category_ID, category_name FROM Product_categories WHERE parent_category_ID IS NULL";
 	private static final String get_category = "SELECT * FROM Product_categories WHERE category_ID=?";
 	private static final String get_subcategories = "SELECT category_ID, category_name FROM Product_categories WHERE parent_category_ID = ?";
+	private static final String delete_category = "CALL delete_category(?, ?)";
+	
+	private static final String insert_category_call = "CALL insert_category(?, ?)";
 	
 	private connectionPool pool;
 	
 	public Product_categoriesDAO(connectionPool pool)
 	{
 		this.pool = pool;
+	}
+	
+	public boolean deleteCategory(int categoryID, Integer parentCategoryID)
+	{
+		Connection connection = pool.getConnection();
+	  	try(CallableStatement ps = connection.prepareCall(delete_category))
+    	{
+    		ps.setInt(1, categoryID);
+    		if(parentCategoryID == null)
+    			ps.setNull(2, java.sql.Types.INTEGER);
+        	else 
+        		ps.setInt(2, categoryID);
+    		
+    		ps.executeUpdate();
+    	}
+    	catch(SQLException e) {return false;}
+    	
+    	return true;
 	}
 	
 	public List<ID_string_pair> getSubcategories(int parentID)
@@ -64,7 +86,27 @@ public class Product_categoriesDAO
 		return list;
 	}
 
-
+	public boolean addCategory(Integer parentCategoryID, String subcategoryName)
+	{
+		Connection connection = pool.getConnection();
+		try(PreparedStatement ps = connection.prepareCall(insert_category_call))
+		{
+			if(parentCategoryID == null)
+        		ps.setNull(2, java.sql.Types.INTEGER);
+        	else 
+        		ps.setInt(2, parentCategoryID);
+			ps.setString(1, subcategoryName);
+			
+        	ps.executeUpdate();
+        	
+        	return true;
+		}
+		catch(SQLException e) {return false;}
+		finally
+		{
+			pool.returnConnection(connection);
+		}
+	}
 		
 	
 	public Product_category get(int ID)

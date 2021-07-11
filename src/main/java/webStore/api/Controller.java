@@ -16,6 +16,7 @@ import javax.ws.rs.core.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import webStore.DAO.Category_filtersDAO;
 import webStore.DAO.CustomerDAO;
 import webStore.DAO.EmployeesDAO;
 import webStore.DAO.Filter_valuesDAO;
@@ -628,6 +629,96 @@ public class Controller
 		
 		return Response.status(200).entity(subcategoriesWrapper).build();
 	}
+	
+	@PUT
+	@Path("/category")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response addSubCategory(ID_string_pair value)
+	{
+		// authentication and authorization have to be handled - to do
+		
+		Integer parentID = (value.ID == -1) ? null : value.ID;
+		boolean response = new Product_categoriesDAO(employeePool).addCategory(parentID, value.name);
+		
+		if(response == false)
+			return Response.status(400).build();
+		
+		return Response.status(200).build();
+	}
+	@PUT
+	@Path("/filter")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response addFilter(ID_string_pair value)
+	{
+		// authentication and authorization have to be handled - to do
+		Product_category category = new Product_categoriesDAO(employeePool).get(value.ID);
+		System.out.println(category);
+		if(category == null)
+			return Response.status(400).build();
+		
+		if(category.number_of_subcategories != 0)
+			return Response.status(400).build(); // cannot add filters to non-leaf categories
+		
+		boolean status = new Category_filtersDAO(employeePool).addCategoryFilter(value.ID, value.name);
+		if(status == false)
+			return Response.status(400).build();
+		
+		return Response.status(200).build();
+	}
+	@PUT
+	@Path("/filter-value")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response addFilterValue(ID_string_pair value)
+	{
+		// authentication and authorization have to be handled - to do
+		boolean status = new Filter_valuesDAO(employeePool).addFilterValue(value.ID, value.name);
+		if(status == false)
+			return Response.status(400).build();
+		
+		
+		return Response.status(200).build();
+	}
+	
+	@DELETE
+	@Path("/category/{categoryID}")
+	public Response deleteCategory(@PathParam("categoryID") int categoryID)
+	{
+		// authentication and authorization have to be handled - to do
+		Product_categoriesDAO dao = new Product_categoriesDAO(employeePool);
+		Product_category category = dao.get(categoryID);
+		boolean status = dao.deleteCategory(categoryID, category.parent_category_ID);
+		
+		if(status == false)
+			return Response.status(400).build();
+		
+		
+		return Response.status(200).build();
+	}
+	@DELETE
+	@Path("/filter/{filterID}")
+	public Response deleteFilter(@PathParam("filterID") int filterID)
+	{
+		// authentication and authorization have to be handled - to do
+		boolean status = new Category_filtersDAO(employeePool).deleteFilter(filterID);
+		if(status == false)
+			return Response.status(400).build();
+		
+		
+		return Response.status(200).build();
+	}
+	@DELETE
+	@Path("/filter-value/{filter_value_ID}")
+	public Response deleteFilterValue(@PathParam("filter_value_ID") int filter_value_ID)
+	{
+		// authentication and authorization have to be handled - to do
+		boolean status = new Filter_valuesDAO(employeePool).deleteFilterValue(filter_value_ID);
+		if(status == false)
+			return Response.status(400).build();
+		
+		
+		return Response.status(200).build();
+	}
+	
 	
 	@PUT
 	@Path("/filter-product")

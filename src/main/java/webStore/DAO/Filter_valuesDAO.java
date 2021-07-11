@@ -13,8 +13,8 @@ import webStore.utilities.connectionPool;
 public class Filter_valuesDAO
 {
 	private static final String addFilterValues = "INSERT INTO Filter_values(filter_ID, value) VALUES(?, ?)";
-	private static final String get_filters = "select T.filter, T.filter_ID, T.filter_value_ID, T.value from (select * from (product_categories join Category_filters using(category_ID) join filter_values using(filter_ID)) ) AS T where T.category_ID=?"; // done
-    
+	private static final String get_filters = "select T.filter, T.filter_ID, T.filter_value_ID, T.value from (select * from (product_categories join Category_filters using(category_ID) left outer join filter_values using(filter_ID)) ) AS T where T.category_ID=?"; // done
+	private static final String delete_filter_value = "DELETE FROM Filter_values WHERE filter_value_ID = ?";
 	
 	
 	private connectionPool pool;
@@ -22,6 +22,23 @@ public class Filter_valuesDAO
 	public Filter_valuesDAO(connectionPool pool)
 	{
 		this.pool = pool;
+	}
+	
+	public boolean deleteFilterValue(int filterValueID)
+	{
+		Connection connection = pool.getConnection();
+		try(PreparedStatement s = connection.prepareStatement(delete_filter_value))
+		{
+			s.setInt(1,  filterValueID);
+			s.execute();
+			
+			return true;
+		}
+		catch(SQLException e) {return false;}
+		finally
+		{
+			pool.returnConnection(connection);
+		}
 	}
 	
 	public FilterValuesOfCategory get_filters(int categoryID)

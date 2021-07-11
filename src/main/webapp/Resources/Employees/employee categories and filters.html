@@ -37,6 +37,29 @@
 					<h2 id="type_header"></h2>
 					<p id="categories_and_filters_path"></p>
 					<select id="subcategories_or_filters_select" size="5"></select>
+					
+					<div class="input-button-wrapper">
+						<select id="add_type_select">
+							<option value="category">Category</option>
+							<option value="filter">Filter</option>
+							<option value="filter-value">Filter value</option>
+						</select>
+						<input class="input-class" placeholder="Value" id="add_category_or_filter_input" />
+						<input class="input-class" placeholder="Parent ID" id="parent_id_input" />
+						<button class="categories_and_filters_button" id="add_new_category_button">Add category or filter</button>
+					</div>
+					
+					<button class="categories_and_filters_button" id="fetch_subcategories_or_filers_button">Fetch selected</button>
+					
+					<div id="remove_wrapper">
+						<select id="remove_type_select">
+							<option value="category">Category</option>
+							<option value="filter">Filter</option>
+							<option value="filter-value">Filter value</option>
+						</select>
+						<input class="input-class" placeholder="ID to remove" id="id_to_remove_input" />
+						<button class="categories_and_filters_button" id="remove_selected_button">Remove</button>
+					</div>
 				</div>
 			</div>
 		</div>

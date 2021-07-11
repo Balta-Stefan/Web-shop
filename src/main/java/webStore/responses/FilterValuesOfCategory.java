@@ -27,14 +27,18 @@ public class FilterValuesOfCategory
 	// determines whether a new filter needs to be added or if it already exists
 	public void addFilterOrValue(int filter_value_ID, int filter_ID, String filter_name, String filter_value)
 	{
-		ID_string_pair newFilterValue = new ID_string_pair(filter_value_ID, filter_value);
-		for(ConcreteFilter cf : categoryFilters)
+		ID_string_pair newFilterValue = null;
+		if(filter_value != null)
 		{
-			if(cf.filter_ID == filter_ID)
+			newFilterValue = new ID_string_pair(filter_value_ID, filter_value);
+			for(ConcreteFilter cf : categoryFilters)
 			{
-				// filter already exists, add the passed value to it
-				cf.filter_values.add(newFilterValue);
-				return;
+				if(cf.filter_ID == filter_ID)
+				{
+					// filter already exists, add the passed value to it
+					cf.filter_values.add(newFilterValue);
+					return;
+				}
 			}
 		}
 		

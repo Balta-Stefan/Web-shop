@@ -240,7 +240,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Category_filters` (
   CONSTRAINT `category_ID`
     FOREIGN KEY (`category_ID`)
     REFERENCES `mydb`.`Product_categories` (`category_ID`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
@@ -302,7 +302,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Filter_values` (
   CONSTRAINT `filter_ID`
     FOREIGN KEY (`filter_ID`)
     REFERENCES `mydb`.`Category_filters` (`filter_ID`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
@@ -318,12 +318,12 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Product_filter_values` (
   CONSTRAINT `FK_Product_filter_values_product_ID`
     FOREIGN KEY (`product_ID`)
     REFERENCES `mydb`.`Products` (`product_ID`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `filter_value_ID`
     FOREIGN KEY (`filter_value_ID`)
     REFERENCES `mydb`.`Filter_values` (`filter_value_ID`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
@@ -413,6 +413,7 @@ GRANT SELECT ON Manufacturers TO customer;
 
 GRANT SELECT ON Employees TO employee;
 GRANT SELECT ON Products TO employee;
+GRANT SELECT, DELETE ON Product_categories TO employee;
 GRANT SELECT ON Product_reviews TO employee;
 GRANT SELECT ON Product_pictures TO employee;
 GRANT SELECT ON Customers TO employee;
@@ -421,6 +422,13 @@ GRANT SELECT ON Warehouses TO employee;
 GRANT SELECT ON Manufacturers TO employee;
 GRANT SELECT ON Orders TO employee;
 GRANT SELECT ON Inventory TO employee;
+GRANT SELECT, INSERT, DELETE ON Category_filters TO employee;
+GRANT SELECT, INSERT, DELETE ON Filter_values TO employee;
+GRANT SELECT, INSERT, DELETE ON Product_filter_values TO employee;
+
+
+GRANT EXECUTE ON PROCEDURE insert_category TO employee;
+GRANT EXECUTE ON PROCEDURE delete_category TO employee;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

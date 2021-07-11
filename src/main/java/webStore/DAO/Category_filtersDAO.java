@@ -17,6 +17,7 @@ public class Category_filtersDAO
 
 	private static final String get_subcategories = "SELECT category_ID, category_name FROM Product_categories WHERE parent_category_ID = ?";
     private static final String addCategoryFilter = "INSERT INTO Category_filters(category_ID, filter) VALUES(?, ?)";
+    private static final String delete_filter = "DELETE FROM Category_filters WHERE filter_ID = ?";
     
 	
 	private connectionPool pool;
@@ -24,6 +25,23 @@ public class Category_filtersDAO
 	public Category_filtersDAO(connectionPool pool)
 	{
 		this.pool = pool;
+	}
+	
+	public boolean deleteFilter(int filterID)
+	{
+		Connection connection = pool.getConnection();
+		try(PreparedStatement s = connection.prepareStatement(delete_filter))
+		{
+			s.setInt(1,  filterID);
+			s.execute();
+			
+			return true;
+		}
+		catch(SQLException e) {return false;}
+		finally
+		{
+			pool.returnConnection(connection);
+		}
 	}
 	
 	public List<Category_filter> getSubcategories(int parent_category_ID)

@@ -3,6 +3,53 @@ select#categories_select{
 	height: 15rem;
 }
 
+/*input#add_category_input{
+	width: 15rem;
+	margin-right: 15px;
+}*/
+
+/*div#add_new_wrapper{
+	width: 100%;
+	border: solid;
+	display: flex;
+	align-items: baseline;
+}*/
+
+.input-button-wrapper{
+	display: flex;
+	align-items: baseline;
+}
+.input-class{
+	margin-right: 25px;
+	width: 8rem;
+}
+
+
+
+.categories_and_filters_button{
+	font-weight: bold;
+	background-color: blue;
+	color: white;
+	border: none;
+	width: 10rem;
+	height: 2rem;
+	margin-top: 25px;
+	
+	background-color: blue;
+}
+.categories_and_filters_button:hover{
+	opacity: 0.5;
+}
+
+
+button#remove_selected_button{
+	background-color: red;
+}
+
+button#fetch_subcategories_or_filers_button{
+	background-color: green;
+}
+
 div#categories_and_filters_info_wrapper{
 	display: flex;
 	flex-direction: column;
