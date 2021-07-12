@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Products` (
   `product_ID` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
   `manufacturer` INT NOT NULL,
-  `price` DECIMAL(10,4) NULL,
+  `price` DECIMAL(10,4) NOT NULL,
   `category` INT NOT NULL,
   `mass` DOUBLE NULL,
   `description` VARCHAR(2000) NULL,
