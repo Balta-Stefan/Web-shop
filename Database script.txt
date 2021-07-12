@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Warehouses` (
   `country` VARCHAR(45) NULL,
   `state` VARCHAR(45) NULL,
   PRIMARY KEY (`warehouse_ID`),
-  CONSTRAINT `nonzero_free_capacity`
+  CONSTRAINT `nonnegative_free_capacity`
    CHECK(free_capacity >= 0) 
  )
 ENGINE = InnoDB;
@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Inventory` (
     REFERENCES `mydb`.`Suppliers` (`supplier_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-  CONSTRAINT `nonzero_available_amount`
+  CONSTRAINT `nonnegative_available_amount`
     CHECK(available_amount >= 0)
 ENGINE = InnoDB;
 
