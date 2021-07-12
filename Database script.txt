@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Products` (
   `product_ID` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
   `manufacturer` INT NOT NULL,
-  `price` DECIMAL(10,4) NOT NULL,
+  `price` DECIMAL(10,4) NULL,
   `category` INT NOT NULL,
   `mass` DOUBLE NULL,
   `description` VARCHAR(2000) NULL,
@@ -96,7 +96,10 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Warehouses` (
   `address` VARCHAR(45) NULL,
   `country` VARCHAR(45) NULL,
   `state` VARCHAR(45) NULL,
-  PRIMARY KEY (`warehouse_ID`))
+  PRIMARY KEY (`warehouse_ID`),
+  CONSTRAINT `nonzero_free_capacity`
+   CHECK(free_capacity >= 0) 
+ )
 ENGINE = InnoDB;
 
 
@@ -133,6 +136,8 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Inventory` (
     REFERENCES `mydb`.`Suppliers` (`supplier_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
+  CONSTRAINT `nonzero_available_amount`
+    CHECK(available_amount >= 0)
 ENGINE = InnoDB;
 
 
@@ -333,7 +338,7 @@ USE `mydb` ;
 DELIMITER $$
 CREATE PROCEDURE insert_category(in category_name VARCHAR(45), parent_category_ID INT)
 	BEGIN 
-		-- the problem with this procedure is that it allows insertion of categories that are a subcategory of itself
+		-- the problem with this procedure is that it allows insertion of categories that are a subcategory of itself.This is solved by a trigger.
     
         -- check if the parent doesn't exist
         IF (parent_category_ID IS NOT NULL) THEN
@@ -376,6 +381,13 @@ BEGIN
 END$$
 
 USE `mydb`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `mydb`.`Inventory_BEFORE_INSERT` BEFORE INSERT ON `Inventory` FOR EACH ROW
+BEGIN
+	UPDATE mydb.Warehouses SET free_capacity = free_capacity - NEW.amount WHERE Warehouses.warehouse_ID = NEW.stored_at;
+END$$
+
+
+USE `mydb`$$
 CREATE DEFINER = CURRENT_USER TRIGGER `mydb`.`Orders_BEFORE_INSERT` BEFORE INSERT ON `Orders` FOR EACH ROW
 BEGIN
 	UPDATE mydb.inventory SET available_amount = available_amount - NEW.amount WHERE inventory.inventory_ID=NEW.inventory_ID;
@@ -386,6 +398,13 @@ CREATE DEFINER = CURRENT_USER TRIGGER `mydb`.`Product_filter_values_AFTER_INSERT
 BEGIN
 	UPDATE Filter_values SET total_products=total_products+1
     WHERE Filter_values.filter_value_ID=NEW.filter_value_ID;
+END$$
+
+USE `mydb`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `mydb`.`Product_filter_values_AFTER_DELETE` AFTER DELETE ON `Product_filter_values` FOR EACH ROW
+BEGIN
+	UPDATE Filter_values SET total_products=total_products-1
+	WHERE Filter_values.filter_value_ID=OLD.filter_value_ID;
 END$$
 
 USE `mydb`$$
