@@ -266,7 +266,7 @@ public class Controller
 	}
 	
 	@GET
-	@Path("/employees/inventory")
+	@Path("/employees/inventory.html")
 	@Produces("text/html")
 	public Response getEmployeesInventory()
 	{
@@ -473,7 +473,11 @@ public class Controller
     	if(orders == null)
     		return Response.status(500).build();
     	
-    	return Response.status(200).entity(orders).build();
+    	CacheControl cache = new CacheControl();
+    	cache.setMaxAge(60);
+    	cache.setPrivate(true);
+    	
+    	return Response.status(200).cacheControl(cache).entity(orders).build();
     }
     @GET
     @Path("/employees/orders/{order_ID}")
@@ -523,7 +527,11 @@ public class Controller
     	if(products == null)
     		return Response.status(500).build();
     	
-    	return Response.status(200).entity(products).build();
+    	CacheControl cache = new CacheControl();
+    	cache.setMaxAge(60);
+    	cache.setPrivate(true);
+    	
+    	return Response.status(200).cacheControl(cache).entity(products).build();
     }
     @GET
     @Path("/employees/products/{product_ID}")
@@ -548,7 +556,11 @@ public class Controller
     	if(inventories == null)
     		return Response.status(500).build();
     	
-    	return Response.status(200).entity(inventories).build();
+    	CacheControl cache = new CacheControl();
+    	cache.setMaxAge(60);
+    	cache.setPrivate(true);
+    	
+    	return Response.status(200).cacheControl(cache).entity(inventories).build();
     }
     @GET
     @Path("/employees/inventory/{inventory_ID}")
@@ -618,7 +630,11 @@ public class Controller
     		pairs.add(new ID_string_pair(s.supplier_ID, s.name));
     	}
     	
-    	return Response.status(200).entity(pairs).build();
+    	CacheControl cache = new CacheControl();
+    	cache.setMaxAge(60);
+    	cache.setPrivate(true);
+    	
+    	return Response.status(200).cacheControl(cache).entity(pairs).build();
     }
     
     @GET
@@ -631,7 +647,11 @@ public class Controller
     	if(manufacturers == null)
     		return Response.status(500).build();
     	
-    	return Response.status(200).entity(manufacturers).build();
+    	CacheControl cache = new CacheControl();
+    	cache.setMaxAge(60);
+    	cache.setPrivate(true);
+    	
+    	return Response.status(200).cacheControl(cache).entity(manufacturers).build();
     }
     
     // customer related
