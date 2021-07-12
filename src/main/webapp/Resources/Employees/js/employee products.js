@@ -1,7 +1,7 @@
 async function getProducts()
 {
 	//make_request(URL, method, headers, body_content)
-	var URL = "./products";
+	var URL = "./product";
 	
 	var response = await make_request(URL, "GET", JSON_headers, null);
 	

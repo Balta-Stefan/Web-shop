@@ -421,7 +421,7 @@ GRANT SELECT, INSERT ON Suppliers TO employee;
 GRANT SELECT ON Warehouses TO employee;
 GRANT SELECT ON Manufacturers TO employee;
 GRANT SELECT ON Orders TO employee;
-GRANT SELECT ON Inventory TO employee;
+GRANT SELECT, INSERT ON Inventory TO employee;
 GRANT SELECT, INSERT, DELETE ON Category_filters TO employee;
 GRANT SELECT, INSERT, DELETE ON Filter_values TO employee;
 GRANT SELECT, INSERT, DELETE ON Product_filter_values TO employee;

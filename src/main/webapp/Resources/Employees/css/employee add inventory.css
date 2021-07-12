@@ -1,0 +1,19 @@
+form#inventory_form{
+	display: flex;
+	flex-direction: column;
+}
+
+button#add_inventory_button{
+	color: white;
+	background-color: blue;
+	border: none;
+	font-weight: bold;
+	
+	width: 12rem;
+	height: 2rem;
+	
+	margin-top: 25px;
+}
+button#add_inventory_button:hover{
+	opacity: 0.5;
+}

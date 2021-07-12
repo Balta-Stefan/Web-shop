@@ -15,6 +15,7 @@ public class Inventory
     public Date expiration_date;
 
 
+    public Inventory() {}
 
     public Inventory(int inventory_ID, int amount, BigDecimal price, LocalDateTime delivered_at, int available_amount,
 			int stored_at, BigDecimal suppliers_price, int product_ID, int supplier_ID, Date expiration_date)

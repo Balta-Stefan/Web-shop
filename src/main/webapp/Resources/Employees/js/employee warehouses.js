@@ -1,7 +1,7 @@
 async function getWarehouses()
 {
 	//make_request(URL, method, headers, body_content)
-	var URL = "./warehouses";
+	var URL = "./warehouse";
 	
 	var response = await make_request(URL, "GET", JSON_headers, null);
 	
@@ -34,7 +34,7 @@ async function getWarehouses()
 	{
 		var selectedID = event.target.value;
 		
-		var URL = "./warehouses/" + selectedID;
+		var URL = "./warehouse/" + selectedID;
 		var warehouse_data_response = await make_request(URL, "GET", JSON_headers, null);
 		
 		if(!warehouse_data_response.ok)

@@ -21,6 +21,7 @@ import webStore.DAO.CustomerDAO;
 import webStore.DAO.EmployeesDAO;
 import webStore.DAO.Filter_valuesDAO;
 import webStore.DAO.InventoryDAO;
+import webStore.DAO.ManufacturersDAO;
 import webStore.DAO.Order_statusesDAO;
 import webStore.DAO.OrdersDAO;
 import webStore.DAO.ProductDAO;
@@ -30,6 +31,7 @@ import webStore.DAO.WarehouseDAO;
 import webStore.model.Customer;
 import webStore.model.Employee;
 import webStore.model.Inventory;
+import webStore.model.Manufacturer;
 import webStore.model.Order;
 import webStore.model.Order_status;
 import webStore.model.Product;
@@ -298,6 +300,41 @@ public class Controller
 	}
 	
 	@GET
+	@Path("/employees/add-inventory")
+	@Produces("text/html")
+	public Response getEmployeesAddInventory()
+	{
+		String employeePanel = readFile("\\Employees\\employee add inventory.html");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	@GET
+	@Path("/employees/css/employee add inventory.css")
+	@Produces("text/css")
+	public Response getEmployeeAddInventoryCSS()
+	{
+		String employeePanel = readFile("\\Employees\\css\\employee add inventory.css");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	@GET
+	@Path("/employees/js/employee add inventory.js")
+	@Produces("text/javascript")
+	public Response getEmployeeAddInventoryJS()
+	{
+		String employeePanel = readFile("\\Employees\\js\\employee add inventory.js");
+		if(employeePanel == null)
+			return Response.status(500).build();
+		
+		return Response.status(200).entity(employeePanel).build();
+	}
+	
+	
+	@GET
 	@Path("/employees/categories_and_filters")
 	@Produces("text/html")
 	public Response getEmployeesCategoriesAndFilters()
@@ -452,7 +489,7 @@ public class Controller
     }
 
     @GET
-    @Path("/employees/warehouses")
+    @Path("/employees/warehouse")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getWarehouses()
     {
@@ -464,7 +501,7 @@ public class Controller
     	return Response.status(200).entity(warehouses).build();
     }
     @GET
-    @Path("/employees/warehouses/{warehouse_ID}")
+    @Path("/employees/warehouse/{warehouse_ID}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getWarehouse(@PathParam("warehouse_ID") int warehouse_ID)
     {
@@ -477,7 +514,7 @@ public class Controller
     }
     
     @GET
-    @Path("/employees/products")
+    @Path("/employees/product")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getProducts()
     {
@@ -525,7 +562,19 @@ public class Controller
     	
     	return Response.status(200).entity(inventory).build();
     }
-   
+    @PUT
+    @Path("/employees/inventory")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addInventory(Inventory inventory)
+    {
+    	boolean status = new InventoryDAO(employeePool).insert(inventory);
+    	
+    	if(status == false)
+    		return Response.status(400).build();
+    	
+    	return Response.status(200).build();
+    }
+    
     @PUT
     @Path("/product")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -570,6 +619,19 @@ public class Controller
     	}
     	
     	return Response.status(200).entity(pairs).build();
+    }
+    
+    @GET
+    @Path("/manufacturer")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getManufacturers()
+    {
+    	List<Manufacturer> manufacturers = new ManufacturersDAO(employeePool).getAll();
+    	
+    	if(manufacturers == null)
+    		return Response.status(500).build();
+    	
+    	return Response.status(200).entity(manufacturers).build();
     }
     
     // customer related

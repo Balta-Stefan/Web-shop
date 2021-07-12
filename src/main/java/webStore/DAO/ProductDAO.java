@@ -173,6 +173,8 @@ public class ProductDAO
 			
 			s.execute();
 			
+			if(product.filter_value_IDs == null)
+				return true;
 			try(PreparedStatement ps2 = connection.prepareStatement(get_product_by_name))
 			{
 				ps2.setString(1, product.name);

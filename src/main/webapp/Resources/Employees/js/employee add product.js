@@ -1,6 +1,11 @@
+const categorySelect = document.getElementById("category");
+const manufacturerSelect = document.getElementById("manufacturer");
+
 var submitButton = document.getElementById("add_product_button");
 submitButton.addEventListener("click", submitForm);
 
+getManufacturers();
+getCategories();
 
 async function submitForm()
 {
@@ -19,6 +24,8 @@ async function submitForm()
 	for(var i = 0; i < formData_JSON.filter_value_IDs.length; i++)
 		formData_JSON.filter_value_IDs[i] = formData_JSON.filter_value_IDs[i].trimStart();
 	
+	if(formData_JSON.filter_value_IDs == "")
+		formData_JSON.filter_value_IDs = null;
 	
 	
 	var URL = "../product";
@@ -30,4 +37,42 @@ async function submitForm()
 		return;
 	}
 	alert("Success");
+}
+
+async function getManufacturers()
+{
+	var URL = "../manufacturer";
+	var response = await make_request(URL, "GET", JSON_headers, null);
+	
+	if(!response.ok)
+	{
+		alert("Error occured while obtaining manufacturers.");
+		return;
+	}
+	
+	var manufacturers = await response.json();
+	
+	for(var i = 0; i < manufacturers.length; i++)
+	{
+		manufacturerSelect.innerHTML += '<option value="' + manufacturers[i].manufacturer_ID + '">' + manufacturers[i].name + '</option>';
+	}
+}
+
+async function getCategories()
+{
+	var URL = "../category";
+	var response = await make_request(URL, "GET", JSON_headers, null);
+	
+	if(!response.ok)
+	{
+		alert("Error occured while obtaining categories.");
+		return;
+	}
+	
+	var categories = await response.json();
+	
+	for(var i = 0; i < categories.length; i++)
+	{
+		categorySelect.innerHTML += '<option value="' + categories[i].ID + '">' + categories[i].name + '</option>';
+	}
 }

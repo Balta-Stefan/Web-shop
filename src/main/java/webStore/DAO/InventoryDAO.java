@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,16 +18,17 @@ import webStore.utilities.connectionPool;
 public class InventoryDAO
 {
 	private static final String getInventories = "SELECT * FROM Inventory";
-	private static final String addToInventory = "INSERT INTO Inventory(amount, price, delivered_at, available_amount, stored_at, suppliers_price, product_ID, supplier_ID) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+	private static final String addToInventory = "INSERT INTO Inventory(amount, price, delivered_at, available_amount, stored_at, suppliers_price, product_ID, supplier_ID, expiration_date) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String get_product_from_inventory = "SELECT * FROM Inventory WHERE product_ID = ?";
 	private static final String getInventory = "SELECT * FROM Inventory WHERE inventory_ID = ?";
-
+	
 	private connectionPool pool;
 	
 	public InventoryDAO(connectionPool pool)
 	{
 		this.pool = pool;
 	}
+	
 	
 	public List<Inventory> getProductFromInventory(int productID, boolean only_non_zero_available_amount)
 	{
@@ -67,19 +69,20 @@ public class InventoryDAO
 		return list;
 	}
 	
-	public boolean addToInventory(int amount, BigDecimal product_price, LocalDateTime delivered_at, int warehouse_ID, BigDecimal suppliers_price, int product_ID, int supplier_ID)
+	public boolean insert(Inventory inventory)
 	{
 		Connection connection = pool.getConnection();
 		try(PreparedStatement s = connection.prepareStatement(addToInventory))
 		{
-			s.setInt(1, amount);
-			s.setBigDecimal(2, product_price);
-			s.setObject(3, delivered_at);
-			s.setInt(4, amount);
-			s.setInt(5, warehouse_ID);
-			s.setBigDecimal(6, suppliers_price);
-			s.setInt(7, product_ID);
-			s.setInt(8, supplier_ID);
+			s.setInt(1, inventory.amount);
+			s.setBigDecimal(2, inventory.price);
+			s.setObject(3, inventory.delivered_at);
+			s.setInt(4, inventory.amount);
+			s.setInt(5, inventory.stored_at);
+			s.setBigDecimal(6, inventory.suppliers_price);
+			s.setInt(7, inventory.product_ID);
+			s.setInt(8, inventory.supplier_ID);
+			s.setObject(9, inventory.expiration_date);
 			
 			s.executeUpdate();
 		}

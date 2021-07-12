@@ -13,8 +13,12 @@ h2#products_header{
 }
 
 img#thumbnail{
-	width: 20rem;
-	height: 20rem;
+	/*width: 20rem;
+	height: 20rem;*/
+	display: block;
+	width: auto;
+	height: auto;
 	
+	max-height: 400px;
 	margin: 0 auto;
 }
