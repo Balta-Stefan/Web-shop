@@ -241,7 +241,6 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Category_filters` (
   `filter` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`filter_ID`),
   INDEX `category_ID_idx` (`category_ID` ASC) VISIBLE,
-  UNIQUE INDEX `filter_UNIQUE` (`filter` ASC) VISIBLE,
   CONSTRAINT `category_ID`
     FOREIGN KEY (`category_ID`)
     REFERENCES `mydb`.`Product_categories` (`category_ID`)
