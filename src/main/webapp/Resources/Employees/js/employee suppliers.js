@@ -11,6 +11,25 @@ suppliersSelect.addEventListener("change", selectSupplier);
 
 getSuppliersList();
 
+async function getSupplier(supplier_ID)
+{
+	var URL = "../supplier/" + supplier_ID;
+	var response = await make_request(URL, "GET", JSON_headers, null);
+	
+	if(!response.ok)
+	{
+		alert("Error.");
+		return;
+	}
+	
+	var data = await response.json();
+	
+	nameInput.value = data.name;
+	phoneInput.value = data.phone;
+	emailInput.value = data.email;
+	websiteInput.value = data.website;
+}
+
 async function selectSupplier()
 {
 	var selectedSupplierID = suppliersSelect.value;
@@ -30,6 +49,8 @@ async function selectSupplier()
 		emailInput.disabled = true;
 		websiteInput.disabled = true;
 		submitButton.disabled = true;
+		
+		getSupplier(selectedSupplierID);
 	}
 }
 

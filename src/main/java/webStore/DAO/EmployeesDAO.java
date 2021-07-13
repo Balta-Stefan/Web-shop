@@ -10,7 +10,7 @@ import webStore.utilities.connectionPool;
 
 public class EmployeesDAO
 {
-	private static final String getEmployee = "SELECT * FROM Employees WHERE username=?";
+	private static final String getEmployee = "SELECT * FROM employee_Employee_view WHERE username=?";
 	
 	
 	private connectionPool pool;
@@ -29,8 +29,14 @@ public class EmployeesDAO
 			try(ResultSet results = s.executeQuery();)
 			{
 				 results.next();
-
-		         return new Employee(results.getInt("employee_ID"),
+				 
+				 Employee employee = new Employee();
+				 employee.employee_ID = results.getInt("employee_ID");
+				 employee.username = results.getString("username");
+				 employee.password = results.getString("password");
+				 
+				 return employee;
+		         /*return new Employee(results.getInt("employee_ID"),
 		                    results.getString("name"),
 		                    results.getString("last_name"),
 		                    results.getString("phone"),
@@ -39,7 +45,7 @@ public class EmployeesDAO
 		                    results.getString("state"),
 		                    results.getString("ZIP"),
 		                    results.getString("username"),
-		                    results.getString("password"));
+		                    results.getString("password"));*/
 			}
 		}
 		catch(SQLException e) {return null;}

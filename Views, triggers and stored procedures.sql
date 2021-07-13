@@ -93,6 +93,12 @@ CREATE TABLE IF NOT EXISTS `mydb`.`employee_Employee_view` (`employee_ID` INT, `
 CREATE TABLE IF NOT EXISTS `mydb`.`customer_Customers_view` (`email` INT, `password` INT, `shopping_cart` INT);
 
 -- -----------------------------------------------------
+-- Placeholder table for view `mydb`.`guest_register_customer`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`guest_register_customer` (`customer_ID` INT, `name` INT, `last_name` INT, `email` INT, `password` INT, `phone` INT, `shipping_address` INT, `city` INT, `state` INT, `ZIP_code` INT, `shopping_cart` INT);
+
+
+-- -----------------------------------------------------
 -- View `mydb`.`employee_Employee_view`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `mydb`.`employee_Employee_view`;
@@ -106,8 +112,15 @@ SELECT employee_ID, username, password FROM Employees;
 DROP TABLE IF EXISTS `mydb`.`customer_Customers_view`;
 USE `mydb`;
 CREATE  OR REPLACE VIEW `customer_Customers_view` AS
-SELECT email, password, shopping_cart FROM Customers;
+SELECT customer_ID, email, password, shopping_cart FROM Customers;
+
+-- -----------------------------------------------------
+-- View `mydb`.`guest_register_customer`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `mydb`.`guest_register_customer`;
 USE `mydb`;
+CREATE  OR REPLACE VIEW `guest_register_customer` AS
+SELECT * FROM Customers;
 
 
 DELIMITER ;
@@ -126,6 +139,8 @@ GRANT SELECT ON Product_filter_values TO customer;
 GRANT INSERT ON Orders TO customer;
 GRANT SELECT ON Manufacturers TO customer;
 GRANT SELECT, UPDATE ON customer_Customers_view TO customer;
+GRANT SELECT ON Inventory TO customer;
+GRANT INSERT ON Orders TO customer;
 
 
 GRANT SELECT, INSERT, UPDATE ON Products TO employee;

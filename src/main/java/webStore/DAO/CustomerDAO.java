@@ -10,10 +10,11 @@ import webStore.utilities.connectionPool;
 
 public class CustomerDAO
 {
-	private static final String getCustomer = "SELECT * FROM Customers WHERE email=?";
-	private static final String getCustomerByID = "SELECT * FROM Customers WHERE customer_ID = ?";
-	private static final String registerCustomer = "INSERT INTO Customers(name, last_name, email, password, phone, shipping_address, city, state, ZIP_code) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
-	private static final String update_shopping_cart = "UPDATE Customers SET shopping_cart = ? WHERE customer_ID = ?";
+	private static final String getCustomer = "SELECT * FROM customer_Customers_view WHERE email=?";
+	private static final String getCustomerByID = "SELECT * FROM customer_Customers_view WHERE customer_ID = ?";
+	private static final String customerLogin = "SELECT * FROM customer_Customers_view WHERE customer_ID = ?";
+	private static final String registerCustomer = "INSERT INTO guest_register_customer(name, last_name, email, password, phone, shipping_address, city, state, ZIP_code) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	private static final String update_shopping_cart = "UPDATE customer_Customers_view SET shopping_cart = ? WHERE customer_ID = ?";
 	
 	
 	private connectionPool pool;
@@ -80,7 +81,15 @@ public class CustomerDAO
             try(ResultSet result = s.executeQuery())
             {
             	  result.next();
-                  return new Customer(result.getInt("customer_ID"),
+            	  
+            	  Customer customer = new Customer();
+            	  customer.customer_ID = result.getInt("customer_ID");
+            	  customer.email = result.getString("email");
+            	  customer.password = result.getString("password");
+            	  customer.shopping_cart = result.getString("shopping_cart");
+            	  
+            	  return customer;
+                  /*return new Customer(result.getInt("customer_ID"),
                           result.getString("name"),
                           result.getString("last_name"),
                           result.getString("email"),
@@ -90,7 +99,7 @@ public class CustomerDAO
                           result.getString("city"),
                           result.getString("state"),
                           result.getString("ZIP_code"),
-                          result.getString("shopping_cart"));
+                          result.getString("shopping_cart"));*/
             }
 		}
 		catch(SQLException e) {return null;}
@@ -110,7 +119,14 @@ public class CustomerDAO
             try(ResultSet result = s.executeQuery())
             {
             	  result.next();
-                  return new Customer(result.getInt("customer_ID"),
+            	  
+            	  Customer customer = new Customer();
+            	  customer.customer_ID = result.getInt("customer_ID");
+            	  customer.email = email;
+            	  customer.password = result.getString("password");
+            	  
+            	  return customer;
+                  /*return new Customer(result.getInt("customer_ID"),
                           result.getString("name"),
                           result.getString("last_name"),
                           email,
@@ -120,7 +136,7 @@ public class CustomerDAO
                           result.getString("city"),
                           result.getString("state"),
                           result.getString("ZIP_code"),
-                          result.getString("shopping_cart"));
+                          result.getString("shopping_cart"));*/
             }
 		}
 		catch(SQLException e) {return null;}

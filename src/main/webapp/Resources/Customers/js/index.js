@@ -291,13 +291,14 @@ async function examineProduct(productID)
 	var buy_button = document.getElementById("buy_product_button");
 	
 	
-	var product_ID = responseJSON.product_ID;
+	let product_ID = responseJSON.product_ID;
 	buy_button.addEventListener("click", async function()
 	{
 		var quantity = document.getElementById("buy_product_amount_input").value;
 		// add the product to the customer's cart
-		var URL = URLprefix + "buy/" + product_ID;
-		var body = {"ID": product_ID, "quantity": quantity, "customer_email": my_email}
+		//var URL = URLprefix + "buy/" + product_ID;
+		var URL = URLprefix + "customer/" + ownID + "/shopping-cart";
+		var body = {"productID": product_ID, "quantity": quantity}
 	
 		var response = await make_request(URL, "PUT", JSON_headers, JSON.stringify(body));
 		
@@ -689,7 +690,7 @@ function activate_login_panel()
 		my_email = JSON.parse(formData_JSON).email;
 
 		
-		var URL =  URLprefix + "customers/login";
+		var URL =  URLprefix + "customer/login";
 		var response = await make_request(URL, "POST", JSON_headers, formData_JSON);
 		
 		
@@ -808,7 +809,7 @@ async function get_shopping_cart_items()
 		}
 	*/
 	
-	var URL =  URLprefix + "customers/" + ownID + "/shopping-cart";
+	var URL =  URLprefix + "customer/" + ownID + "/shopping-cart";
 	var response = await make_request(URL, "GET", JSON_headers, null);
 	if(!response.ok)
 		return null;
@@ -818,7 +819,7 @@ async function get_shopping_cart_items()
 
 async function remove_item_from_shopping_cart(product_ID)
 {
-	var URL =  URLprefix + "customers/" + ownID + "/shopping-cart/" + product_ID;
+	var URL =  URLprefix + "customer/" + ownID + "/shopping-cart/" + product_ID;
 	var tempObj = {product_ID};
 	var response = await make_request(URL, "DELETE", JSON_headers, null);
 	
@@ -842,7 +843,7 @@ async function buy_shopping_cart()
 			name: true/false - when true, item ordering was successful
 		}
 	*/
-	var URL =  URLprefix + "customers/" + ownID + "/shopping-cart/buy";
+	var URL =  URLprefix + "customer/" + ownID + "/shopping-cart/buy";
 	var response = await make_request(URL, "PUT", JSON_headers, null);
 	if(!response.ok)
 	{

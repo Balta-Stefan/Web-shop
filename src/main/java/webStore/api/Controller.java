@@ -69,7 +69,7 @@ public class Controller
 	private static connectionPool rootPool = new connectionPool(DB_rootUsername, DB_rootPassword);
 	
 	
-	private static final String ordered_status_name = "ORDERED";
+	private static final String ordered_status_name = "Ordered";
 	private static int ordered_status_ID; // might cause issues along with ordered_status_name
 	
 	private static String pathPrefix = "D:\\Knjige za fakultet\\3. godina\\6. semestar\\Baze podataka\\Baze podataka - projekat\\Source\\Web-shop\\src\\main\\webapp\\Resources";
@@ -636,6 +636,18 @@ public class Controller
     	
     	return Response.status(200).cacheControl(cache).entity(pairs).build();
     }
+    @GET
+    @Path("/supplier/{ID}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getSupplier(@PathParam("ID") int supplier_ID)
+    {
+    	Supplier supplier = new SupplierDAO(employeePool).getSupplier(supplier_ID);
+    	
+    	if(supplier == null)
+    		return Response.status(400).build();
+    	
+    	return Response.status(200).entity(supplier).build();
+    }
     
     @GET
     @Path("/manufacturer")
@@ -722,7 +734,7 @@ public class Controller
 	}
 	
 	@POST
-	@Path("/customers/login")
+	@Path("/customer/login")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response loginCustomer(Customer customer)
@@ -736,13 +748,13 @@ public class Controller
 			public TempClass(int ID){this.ID = ID;}
 		}
 		
-		synchronized(cookies)
+		/*synchronized(cookies)
 		{
 			// check if the user is already logged in
 			Customer exists = cookies.get(customer.email);
 			if(exists != null && exists.password.equals(customer.password))
 				return Response.status(200).entity(new TempClass(exists.customer_ID)).build();
-		}
+		}*/
 		
 		// getCustomer(String email)
 		//Customer customerData = DBAccessObject.getCustomer(customer.email);
@@ -753,10 +765,10 @@ public class Controller
 		//Cookie tmp = new Cookie("user-cookie", customer.email);
 		//NewCookie cookie = new NewCookie("user-cookie", customer.email);
 		//NewCookie cookie = new NewCookie(tmp, null, 1200, true);
-		synchronized(cookies)
+		/*synchronized(cookies)
 		{
 			cookies.put(customerData.email, customerData);
-		}
+		}*/
 		
 
 		
@@ -911,7 +923,11 @@ public class Controller
 		List<TrimmedProduct> responseProducts = new ArrayList<>();
 		
 		for(Product p : products)
+		{
+			if(p.price == null)
+				continue; // ignore products that have no price
 			responseProducts.add(new TrimmedProduct(p.product_ID, p.name, p.thumbnail, p.price.toString()));
+		}
 		
 		return Response.status(200).entity(responseProducts).build();
 	}
@@ -930,17 +946,19 @@ public class Controller
 	}
 
 	@PUT
-	@Path("/buy/{ID}")
+	@Path("/customer/{customerID}/shopping-cart")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response add_product_to_cart(@PathParam("ID") int productID, BuyProduct quantity)
+	public Response add_product_to_cart(@PathParam("customerID") int customerID, BuyProduct purchaseInfo)
 	{
-		Customer purchaser = cookies.get(quantity.customer_email);
+		// old path: @Path("/buy/{ID}")
+		
+		/*Customer purchaser = cookies.get(quantity.customer_email);
 		if(purchaser == null)
-			return Response.status(404).build();
+			return Response.status(404).build();*/
 		
 		//Customer customer = DBAccessObject.getCustomer(purchaser.customer_ID);
 		CustomerDAO custDAO = new CustomerDAO(customerPool);
-		Customer customer = custDAO.get(purchaser.customer_ID);
+		Customer customer = custDAO.get(customerID);
 		String customerCart = customer.shopping_cart;
 		if(customerCart == null)
 			customerCart = "[]";
@@ -948,7 +966,7 @@ public class Controller
 		JSONArray jarray = new JSONArray(customerCart);
 		System.out.println("Customer's cart: " + jarray);
 		
-		String newItem = "{ID: " + productID + ", quantity: " + quantity.quantity + "}";
+		String newItem = "{ID: " + purchaseInfo.productID + ", quantity: " + purchaseInfo.quantity + "}";
 		JSONObject obj = new JSONObject(newItem);
 		
 		
@@ -958,9 +976,9 @@ public class Controller
 			JSONObject tmp = jarray.getJSONObject(i);
 			Integer tmpProductID = tmp.getInt("ID");
 			Integer oldQuantity = tmp.getInt("quantity");
-			oldQuantity += quantity.quantity;
+			oldQuantity += purchaseInfo.quantity;
 			
-			if(tmpProductID == productID)
+			if(tmpProductID == purchaseInfo.productID)
 			{
 				productAlreadyBought = true;
 				tmp.put("quantity", oldQuantity.toString());
@@ -982,13 +1000,10 @@ public class Controller
 		
 		return Response.status(200).build();
 	}
-	
 	private Customer get_customer_shopping_cart(int customerID)
 	{
 		ProductDAO prodDAO = new ProductDAO(customerPool);
-		
-		List<Product> cart = new ArrayList<>();
-		
+
 		//Customer customer = DBAccessObject.getCustomer(customerID);
 		Customer customer = new CustomerDAO(customerPool).get(customerID);
 		if(customer == null)
@@ -996,6 +1011,8 @@ public class Controller
 		
 		String shoppingCart = customer.shopping_cart;
 		JSONArray jarray = new JSONArray(shoppingCart);
+		
+		List<Product> cart = new ArrayList<>();
 		
 		for(int i = 0; i < jarray.length(); i++)
 		{
@@ -1010,9 +1027,8 @@ public class Controller
 		
 		return customer;
 	}
-	
 	@GET
-	@Path("/customers/{ID}/shopping-cart")
+	@Path("/customer/{ID}/shopping-cart")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getShoppingCart(@PathParam("ID") int customerID)
 	{
@@ -1034,15 +1050,45 @@ public class Controller
 			product.quantity = tmp.getInt("quantity");
 			items_in_cart.add(product);
 		}*/
-		List<Product> items_in_cart = get_customer_shopping_cart(customerID).shopping_cart_list;
+		
+		
+		/*List<Product> items_in_cart = get_customer_shopping_cart(customerID).shopping_cart_list;
 		if(items_in_cart == null) 
 			return Response.status(404).build();
 		
-		return Response.status(200).entity(items_in_cart).build();
-	}
+		return Response.status(200).entity(items_in_cart).build();*/
+		
+		
+		ProductDAO prodDAO = new ProductDAO(customerPool);
 
+		//Customer customer = DBAccessObject.getCustomer(customerID);
+		Customer customer = new CustomerDAO(customerPool).get(customerID);
+		if(customer == null)
+			return Response.status(404).build();
+		
+		String shoppingCart = customer.shopping_cart;
+		if(shoppingCart == null)
+			return Response.status(200).entity(new JSONArray("[]")).build();
+		
+		JSONArray jarray = new JSONArray(shoppingCart);
+		
+		List<Product> cart = new ArrayList<>();
+		
+		for(int i = 0; i < jarray.length(); i++)
+		{
+			JSONObject tmp = jarray.getJSONObject(i);
+			//Product product = DBAccessObject.getProduct(tmp.getInt("ID"));
+			Product product = prodDAO.getProduct(tmp.getInt("ID"));
+			product.quantity = tmp.getInt("quantity");
+			cart.add(product);
+		}
+		
+		//customer.shopping_cart_list = cart;
+		
+		return Response.status(200).entity(cart).build();
+	}
 	@DELETE
-	@Path("/customers/{ID}/shopping-cart/{product_ID}")
+	@Path("/customer/{ID}/shopping-cart/{product_ID}")
 	public Response removeProductFromShoppingCart(@PathParam("ID") int customerID, @PathParam("product_ID") int product_ID)
 	{
 		// authentication isn't possible because of the lack of cookies
@@ -1076,9 +1122,8 @@ public class Controller
 		
 		return Response.status(400).build();
 	}
-
 	@PUT
-	@Path("/customers/{ID}/shopping-cart/buy")
+	@Path("/customer/{ID}/shopping-cart/buy")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response buyShoppingCart(@PathParam("ID") int customerID)
 	{
