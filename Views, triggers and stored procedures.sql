@@ -140,7 +140,7 @@ GRANT INSERT ON Orders TO customer;
 GRANT SELECT ON Manufacturers TO customer;
 GRANT SELECT, UPDATE ON customer_Customers_view TO customer;
 GRANT SELECT ON Inventory TO customer;
-GRANT INSERT ON Orders TO customer;
+GRANT INSERT ON guest_register_customer TO customer;
 
 
 GRANT SELECT, INSERT, UPDATE ON Products TO employee;
