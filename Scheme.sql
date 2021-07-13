@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Products` (
   `mass` DOUBLE NULL,
   `description` VARCHAR(2000) NULL,
   `thumbnail` VARCHAR(255) NULL,
-  `warranty_months` TINYINT UNSIGNED NULL,
+  `warranty_months` TINYINT UNSIGNED NULL DEFAULT 0,
   PRIMARY KEY (`product_ID`),
   INDEX `manufacturer_idx` (`manufacturer` ASC) VISIBLE,
   INDEX `category_idx` (`category` ASC) VISIBLE,
@@ -263,7 +263,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Product_pictures` (
   CONSTRAINT `FK_Product_pictures_product_ID`
     FOREIGN KEY (`product_ID`)
     REFERENCES `mydb`.`Products` (`product_ID`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
