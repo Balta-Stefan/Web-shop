@@ -50,7 +50,7 @@ END$$
 USE `mydb`$$
 CREATE DEFINER = CURRENT_USER TRIGGER `mydb`.`Inventory_BEFORE_INSERT` BEFORE INSERT ON `Inventory` FOR EACH ROW
 BEGIN
-	UPDATE mydb.Warehouses SET free_capacity = free_capacity - NEW.amount WHERE Warehouses.warehouse_ID = NEW.stored_at;
+	UPDATE mydb.Warehouses SET free_capacity = free_capacity - NEW.available_amount WHERE Warehouses.warehouse_ID = NEW.stored_at;
 END$$
 
 

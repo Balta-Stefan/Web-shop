@@ -1,6 +1,17 @@
 const categorySelect = document.getElementById("category");
 const manufacturerSelect = document.getElementById("manufacturer");
 
+const nameInput = document.getElementById("name");
+const priceInput = document.getElementById("price");
+const filter_value_IDsInput = document.getElementById("filter_value_IDs");
+const massInput = document.getElementById("mass");
+const thumbnailInput = document.getElementById("thumbnail");
+const other_picturesInput = document.getElementById("other_pictures");
+const warrantyInput = document.getElementById("warranty");
+const descriptionTextArea = document.getElementById("description");
+
+
+
 var submitButton = document.getElementById("add_product_button");
 submitButton.addEventListener("click", submitForm);
 
@@ -27,6 +38,8 @@ async function submitForm()
 	if(formData_JSON.filter_value_IDs == "")
 		formData_JSON.filter_value_IDs = null;
 	
+	if(formData_JSON.price == "")
+		formData_JSON.price = null;
 	
 	var URL = "../product";
 	var response = await make_request(URL, "PUT", JSON_headers, JSON.stringify(formData_JSON));
@@ -37,6 +50,15 @@ async function submitForm()
 		return;
 	}
 	alert("Success");
+	
+	nameInput.value = "";
+	priceInput.value = "";
+	filter_value_IDsInput.value = "";
+	massInput.value = "";
+	thumbnailInput.value = "";
+	other_picturesInput.value = "";
+	warrantyInput.value = "";
+	descriptionTextArea.value = "";
 }
 
 async function getManufacturers()

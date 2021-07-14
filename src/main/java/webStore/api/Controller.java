@@ -41,7 +41,8 @@ import webStore.model.Warehouse;
 import webStore.responses.*;
 import webStore.utilities.connectionPool;
 
-// URL = http://localhost:8080/Web_store/api/v1
+// customer URL = http://localhost:8080/Web_store/api/v1
+// employee URL = http://localhost:8080/Web_store/api/v1/employees
 
 /*
 	Format of the customer's shopping cart:
