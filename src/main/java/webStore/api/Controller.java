@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -73,7 +75,8 @@ public class Controller
 	private static final String ordered_status_name = "Ordered";
 	private static int ordered_status_ID; // might cause issues along with ordered_status_name
 	
-	private static String pathPrefix = "D:\\Knjige za fakultet\\3. godina\\6. semestar\\Baze podataka\\Baze podataka - projekat\\Source\\Web-shop\\src\\main\\webapp\\Resources";
+	private static String resourcesFolderPath;
+	private static final String BUNDLE_NAME = Controller.class.getName();
 	
 	private static HashMap<String, Customer> cookies = new HashMap<>(); // maps email to a customer
 	
@@ -81,6 +84,9 @@ public class Controller
 	{
 		try
 		{
+			ResourceBundle bundle = PropertyResourceBundle.getBundle(BUNDLE_NAME);
+			resourcesFolderPath = bundle.getString("resourcesFolderPath");
+			
 		 	Class.forName("com.mysql.cj.jdbc.Driver"); 
 		    //Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/mydb", "root", "sigurnost");
 		    //DBAccessObject = new MySQL_DAO(connection);
@@ -111,7 +117,7 @@ public class Controller
 	{
 		try
 		{
-			return new String(Files.readAllBytes(Paths.get(pathPrefix + relativePath)));
+			return new String(Files.readAllBytes(Paths.get(resourcesFolderPath + relativePath)));
 		}
 		catch(Exception e) {return null;}
 	}
