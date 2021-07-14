@@ -1,0 +1,2 @@
+Jersey RESTful Web Services framework
+MySQL JDBC driver
